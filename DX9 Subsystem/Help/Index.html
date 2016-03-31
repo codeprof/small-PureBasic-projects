@@ -1,0 +1,147 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=windows-1252">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 2.0  (Win32)">
+	<META NAME="CREATED" CONTENT="20060606;10282250">
+	<META NAME="CHANGED" CONTENT="20070607;19034784">
+</HEAD>
+<BODY LANG="de-DE" BGCOLOR="#a4a4ff" DIR="LTR">
+<P ALIGN=LEFT STYLE="margin-bottom: 0cm"><FONT SIZE=7>DX9 subsystem
+<BR></FONT><STRONG><SPAN STYLE="text-decoration: none"><FONT SIZE=2>v0.5
+for PureBASIC 06.06.07</FONT></SPAN> </STRONG>
+</P>
+<HR>
+<P>The DX9 subsystem was written to port games and other
+applications<BR>written in PureBASIC easily to DX9.It's written
+completely in PureBASIC.<BR>At the moment the DX9 subsystem supports
+the complete Sprite-,Sprite3D-,Keyboard-,Mouse-,Joystick- and Sound
+Library.<BR>The DX9 subsystem is optimized for speed, not for
+compactness.<BR><BR><B>IMPORTANT:</B><BR>The author is not
+responsible for any damages caused by the use of this software.<BR>The
+author is also not responsible for any damages caused by
+applications<BR>which include the complete library or parts of it or
+its source code.<BR>Use this software at your own risk! <BR>Feel free
+to use this subsystem for whatever you want.</P>
+<UL>
+	<P ALIGN=LEFT><STRONG><U>Changes since version 0.4: (06.06.07)<BR></U></STRONG><SPAN STYLE="text-decoration: none"><BR>-
+	Removed: dirty DX hacks, because they don't improve the performance
+	much<BR>- Corrected: bug in CopySprite()<BR>- Corrected: bug in
+	DisplaySprite3D()<BR>- Corrected: bug in DisplaySolidSprite()<BR>-
+	Corrected: bug in ChangeGamma()<BR>- Corrected: bug in
+	ClipSprite()<BR>- Corrected: bug in texture manager <BR><SPAN STYLE="text-decoration: none">-
+	Corrected: strange bug in SpritePixelCollision()<BR>- Corrected: bug
+	in ScreenID()</SPAN><BR>- Improved: performance of Grabsprite() is
+	much better, although still not hw accelerated ;-)<BR>- Improved:
+	loading speed of LoadSprite() and CatchSprite() if you do it right<BR>-
+	Improved: SpritePixelCollision() between static sprites is much
+	faster (nearly 50 times faster !?)<BR>- Improved: DisplaySprite3D()
+	optimized for displaying 3D-sprites with the same texture at once<BR>-
+	Improved: DisplaySprite3D() uses clipping only if necessary<BR>-
+	Improved: FlipBuffers()</SPAN></P>
+	<P ALIGN=LEFT><STRONG><U>Changes since version 0.3: (01.01.07)<BR></U></STRONG><SPAN STYLE="text-decoration: none"><BR>-
+	Improved: extended DX9S-extension file<BR>- Improved: removed
+	dependency on DX9SubsystemDLL.dll, now the dll isn't needed
+	anymore.<BR>- Removed: DX9S_SetDLL() , because it's not useful
+	anymore.</SPAN></P>
+	<P ALIGN=LEFT><B><U>Changes since version 0.26: (02.11.06)<BR></U></B><SPAN STYLE="text-decoration: none"><BR>-
+	Added: DX9S-extension file<BR>- Corrected: bug in PS with uncommon
+	transparent colors<BR><SPAN STYLE="text-decoration: none">-
+	Corrected: major bugs in the texture manager</SPAN><BR><SPAN STYLE="text-decoration: none">-
+	Corrected: bug with sprites created with #PB_Sprite_Memory when
+	UseBuffer() was used</SPAN><BR><SPAN STYLE="text-decoration: none">-
+	Corrected: bug with
+	InitKeyboard(),InitMouse(),InitJoystick(),InitSound()</SPAN><BR>-
+	Corrected: texture manager doesn't use always textures with power of
+	2 anymore<BR>- Corrected: The PS support works correctly<BR>-
+	Improved: If possible PS 1.4 (no more PS 2.0 is needed) will be used
+	for faster sprites manipulation<BR>- Improved: Internal d3ddevice
+	management</SPAN></P>
+	<P ALIGN=LEFT STYLE="text-decoration: none"><B><U>Changes since
+	version 0.24:<BR></U></B><BR>- Added: PixelShader 2.0 Colorkeying
+	support which allows faster sprite manipulation 
+	</P>
+	<P ALIGN=LEFT><B><U>Changes since version 0.22:<BR></U></B><SPAN STYLE="text-decoration: none"><BR>-
+	Corrected: bug in the texture manager<BR>- Improved: texture manager
+	uses now always textures with power of 2 (except if you use
+	#PB_Sprite_Texture)</SPAN></P>
+	<P ALIGN=LEFT STYLE="text-decoration: none"><B><U>Changes since
+	version 0.2:<BR></U></B><BR>- Corrected: bug in ExamineMouse()<BR>-
+	Corrected: bug in ExamineJoystick()<BR>- Corrected: bug in
+	ExamineKeyboard()<BR>- Corrected: bug in LoadSound()/CatchSound()<BR>-
+	Corrected: bug in FreeSprite()<BR>- Corrected: bug in CopySprite()
+	with #PB_Sprite_Alpha<BR>- Corrected: bug in texture manager with
+	render targets<BR>- Improved: OpenWindowedScreen() 
+	</P>
+	<P ALIGN=LEFT STYLE="text-decoration: none"><B><U>Changes since
+	version 0.11:<BR><BR></U></B>- Added: complete Joystick Library<BR>-
+	Corrected: bug in MouseWheel() 
+	</P>
+	<P ALIGN=LEFT STYLE="text-decoration: none"><B><U>Changes since
+	version 0.1:<BR><BR></U></B>- Added: complete Sound Library 
+	</P>
+	<P ALIGN=LEFT><B><U>Changes since version 0.08:<BR><BR></U></B><SPAN STYLE="text-decoration: none">-
+	Added: complete Mouse Library<BR><SPAN STYLE="text-decoration: none">-
+	Corrected: small bug in SpriteDepth()<BR><SPAN STYLE="text-decoration: none">-
+	Corrected: bug in ClipSprite()<BR><SPAN STYLE="text-decoration: none">-
+	Corrected: bugs in CopySprite()</SPAN> </SPAN><BR>- Corrected: Bug
+	in the texture manager if the device needs to be recreated</SPAN> <BR><SPAN STYLE="text-decoration: none">-
+	Optimized: SpriteOutput()</SPAN> <BR>- Improved: ChangeGamma() works
+	now </SPAN>
+	</P>
+</UL>
+<UL>
+	<P ALIGN=LEFT><U><B>Changes since version 0.06:</B></U></P>
+	<P ALIGN=LEFT>- Added: support for #PB_Sprite_Alpha<BR>- Added:
+	Command ChangeAlphaIntensity()<BR>- Added: Command
+	DisplayAlphaSprite() (doesn't work correctly)<BR>- Added: Command
+	DisplayShadowSprite()<BR>- Added: Command DisplaySolidSprite()<BR><SPAN STYLE="text-decoration: none">-
+	Optimized: ScreenOutput()<BR>- Corrected: Bug with Clipping in
+	DisplaySprite(), DisplayTransparentSprite() and
+	DisplayTranslucentSprite()<BR>- Corrected: Bug in
+	SpritePixelCollision()<BR>- Corrected: Bug with transparency in
+	sprites<BR>- Corrected: Bug in UseBuffer()<BR>- Corrected: Bug in
+	LoadSprite() and CatchSprite()</SPAN><BR><SPAN STYLE="text-decoration: none">-
+	Corrected: Bug in Start3D()<BR>- Corrected: Bug in
+	Sprite3DBlendingMode()<BR>- Corrected: Bug in
+	ZoomSprite3D()<BR><BR></SPAN><B><U>Changes since version 0.04:</U></B></P>
+	<P ALIGN=LEFT>- Added: Command TransformSprite3D()<BR>- Added:
+	Command Sprite3DBlendingMode()<BR>- Added: Command
+	Sprite3DQuality()<BR>- Added: Command Start3D()<BR>- Added: Command
+	Stop3D()<BR>- Added: Command InitSprite3D()<BR>- Added: Command
+	IsSprite3D()<BR>- Added: Command CreateSprite3D()<BR>- Added:
+	Command ZoomSprite3D()<BR>- Added: Command RotateSprite3D()</P>
+	<P ALIGN=LEFT><U><B>Changes since version 0.02:</B></U></P>
+	<P ALIGN=LEFT>- Added: Command SaveSprite()<BR>- Added:
+	ScreenOutput() supports now direct memory access (=&gt;
+	plot(x,y,color) works much faster)<BR>- Added: SpriteOutput()
+	supports now direct memory access (=&gt; plot(x,y,color) works much
+	faster)<BR>- Added: support for #PB_Sprite_Memory*,
+	#PB_Sprite_AlphaBlending and #PB_Sprite_Texture <BR>- Optimized:
+	SpritePixelCollision() is now pixel perfect<BR>- Optimized: Video
+	sprites(created with 0) are optimized automatically for best
+	performance<BR>- Optimized: CopySprite() only creates a new Sprite
+	if necessary<BR>- Optimized: GrabSprite() only creates a new Sprite
+	if necessary<BR>- Optimized: FlipBuffers() now recreates a screen
+	automatically if it gets lost.(The DX7 Rendersystem crashes if this
+	happens. For the DX9 subsystem you need to add the OnErrorResume()
+	command)<BR>- Corrected: Bug in DisplayRGBFilter()<BR>- Corrected:
+	Bug in OpenScreen()</P>
+	<P ALIGN=LEFT>*) #PB_Memory means not that the sprite is created
+	only in systemmemory, it just means that editing this sprite will be
+	faster than editing video memory sprites (displaying will be a bit
+	slower).In fact it consists out of a systemmem surface, a texture in
+	AGP memory and a render target in video memory.<BR><BR><B><U>Changes
+	since version 0.01:</U></B></P>
+	<P ALIGN=LEFT>- Added: complete Keyboard Library<BR>- Corrected: a
+	few bugs in FlipBuffers()</P>
+	<P ALIGN=LEFT><U><B>Contact:</B></U></P>
+	<P ALIGN=LEFT>If you found a bug, want to support me or if you want
+	the source code (or something else) then please contact me under:
+	<BR>email:<FONT COLOR="#ffffff"> </FONT><A HREF="mailto:MoebiusStefan@AOL.com"><FONT COLOR="#666666">MoebiusStefan@AOL.com<BR><BR></FONT></A><B><U>Thanks
+	to:<BR></U></B><BR>Dr. Shrek, Fred, va!n<BR><BR><BR>
+	</P>
+</UL>
+</BODY>
+</HTML>

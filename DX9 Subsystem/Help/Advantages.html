@@ -1,0 +1,39 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=windows-1252">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 2.0  (Win32)">
+	<META NAME="CREATED" CONTENT="20070606;15063890">
+	<META NAME="CHANGED" CONTENT="20070606;15095443">
+</HEAD>
+<BODY LANG="de-DE" DIR="LTR">
+<P><FONT SIZE=6><U><B>Advantages:</B></U></FONT></P>
+<UL>
+	<LI><P>DisplaySprite(), DisplayTransparentSprite() works faster, if
+	a newer gfx-card is available. 
+	</P>
+	<LI><P>DisplayTranslucentSprite(),DisplayRGBFilter(),DisplayAlphaSprite(),DisplayShadowSprite()
+	and DisplaySolidSprite() are hardware accelerated and much faster. 
+	</P>
+	<LI><P>All sprites are backed in system memory, so sprites can be
+	restored, if the device gets lost. 
+	</P>
+	<LI><P>SpritePixelCollision() works much faster for static sprites.</P>
+	<LI><P>3D-Sprites are sometimes faster.</P>
+</UL>
+<P><FONT SIZE=6><U><B>Disadvantages:</B></U></FONT></P>
+<UL>
+	<LI><P>Direct3D9 and a 3d accelerator are needed.</P>
+	<LI><P>The subsystem needs much more memory. 
+	</P>
+	<LI><P>UseBuffer(),TransparentSpriteColor(),SpriteOutput() can be very
+	slow if PS 1.4 is not available. 
+	</P>
+	<LI><P>CopySprite(),GrabSprite() are really slow. 
+	</P>
+	<LI><P>sprites are limited to the maximal texture size. (usually
+	2048x2048)</P>
+</UL>
+</BODY>
+</HTML>

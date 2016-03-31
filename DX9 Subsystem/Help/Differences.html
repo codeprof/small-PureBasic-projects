@@ -1,0 +1,130 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=windows-1252">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 2.0  (Win32)">
+	<META NAME="CREATED" CONTENT="20060606;10342921">
+	<META NAME="CHANGED" CONTENT="20070702;14440114">
+</HEAD>
+<BODY LANG="de-DE" DIR="LTR">
+<P><STRONG><U><FONT SIZE=6><FONT FACE="Times New Roman, serif"><FONT COLOR="#000000">Differences
+between the DX7- and the DX9 render system:</FONT></FONT></FONT></U></STRONG></P>
+<P STYLE="text-decoration: none"><FONT FACE="Times New Roman, serif"><FONT SIZE=3><FONT COLOR="#000000">There
+are a few differences to the DX7 render system. Some of them are
+there because it's not possible to do it the same way like in the DX7
+render system, others are different for speed or quality improvement.</FONT>
+</FONT></FONT>
+</P>
+<P><STRONG><FONT FACE="Times New Roman, serif">OpenScreen():</FONT></STRONG><FONT FACE="Times New Roman, serif"><BR>The
+OpenScreen()-command only supports resoultions of 16Bit and 32Bit.
+8Bit and 24Bit resolutions are not supported. Use the DX7 render
+system if you want to support them too.</FONT></P>
+<HR>
+<P><STRONG><FONT FACE="Times New Roman, serif">OpenWindowedScreen():</FONT></STRONG><FONT FACE="Times New Roman, serif"><BR>The
+OpenWindowedScreen()-command only supports desktop resoultions of
+16Bit and 32Bit. 8Bit and 24Bit resolutions are not supported. Use
+the DX7 render system if you want to support them too.</FONT></P>
+<HR>
+<P><STRONG><FONT FACE="Times New Roman, serif">StartSpecialFX():</FONT></STRONG><FONT FACE="Times New Roman, serif"><BR>StartSpecialFX()
+is only available for compatibility reason. It does nothing.</FONT></P>
+<HR>
+<P><STRONG><FONT FACE="Times New Roman, serif">StopSpecialFX():</FONT></STRONG><FONT FACE="Times New Roman, serif"><BR>StopSpecialFX()
+is only available for compatibility reason. It does nothing.</FONT></P>
+<HR>
+<P><STRONG><FONT FACE="Times New Roman, serif">DisplayRGBFilter():</FONT></STRONG><FONT FACE="Times New Roman, serif"><BR>The
+command DisplayRGBFilter() is hardware accelerated. So it's much
+faster.</FONT></P>
+<HR>
+<P><STRONG><FONT FACE="Times New Roman, serif">FlipBuffers():</FONT></STRONG><FONT FACE="Times New Roman, serif"><BR>FlipBuffers(2)
+works also in windowed mode.</FONT></P>
+<HR>
+<P><STRONG><FONT FACE="Times New Roman, serif">DisplayTranslucentSprite():</FONT></STRONG><FONT FACE="Times New Roman, serif"><BR>The
+transparent color set with TransparentSpriteColor() is used as
+transparent color instead of always black.<BR>This command is
+hardware accelerated. So it's much faster.</FONT></P>
+<HR>
+<P><A NAME="Table1"></A><STRONG><FONT FACE="Times New Roman, serif">UseBuffer():<BR></FONT></STRONG><FONT SIZE=3><FONT FACE="Times New Roman, serif">You
+can't display a sprite while it's used as render target.</FONT></FONT></P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=2 CELLSPACING=1>
+	<TR>
+		<TD BGCOLOR="#99cc99">
+			<P><FONT FACE="Times New Roman, serif">UseBuffer(</FONT><STRONG><FONT FACE="Times New Roman, serif"><FONT COLOR="#cc0000">1</FONT></FONT></STRONG><FONT FACE="Times New Roman, serif">)
+			;&nbsp;use sprite as render target<BR>DisplaySprite(</FONT><STRONG><FONT FACE="Times New Roman, serif"><FONT COLOR="#cc0000">1</FONT></FONT></STRONG><FONT FACE="Times New Roman, serif">,x,y)
+			; doesn't work!</FONT></P>
+		</TD>
+	</TR>
+</TABLE>
+<P><FONT FACE="Times New Roman, serif"><FONT SIZE=3>It's possible to
+use DisplaySprite3D() with UseBuffer(), that means you can display
+3D-Sprites<BR>on a sprite.</FONT></FONT></P>
+<P><FONT FACE="Times New Roman, serif">Try to avoid to use
+UseBuffer(</FONT><EM><FONT FACE="Times New Roman, serif">Sprite</FONT></EM><FONT FACE="Times New Roman, serif">)
+in the main loop whenever it's possible. It's not recommended to use
+this command in the main loop, because it's really slow. If you need
+to use UseBuffer() often, you should use the DX7 render
+system!<BR>However, if there is at least PS 1.4 support, then this
+command works fairly fast. </FONT>
+</P>
+<HR>
+<P><STRONG><FONT FACE="Times New Roman, serif">TransparentSpriteColor():</FONT></STRONG><FONT FACE="Times New Roman, serif"><BR>Try
+to avoid to use TransparentSpriteColor() in the main loop.If you need
+to use TransparentSpriteColor() often in the main loop, you should
+use the DX7 render system!<BR>However, if there is at least PS 1.4
+support, then this command works really fast. </FONT>
+</P>
+<HR>
+<P><STRONG><FONT FACE="Times New Roman, serif">GrabSprite():<BR></FONT></STRONG><FONT SIZE=3><FONT FACE="Times New Roman, serif">GrabSprite
+creates only a new sprite when it's needed.(e.g. another size or
+another bit depth)<BR>Try to avoid to use GrabSprite() in the main
+loop whenever it's possible. It's not recommended to use this command
+in the main loop, because it's really slow. If you need to use
+GrabSprite() often, you should use the DX7 render system!</FONT></FONT></P>
+<HR>
+<P><STRONG><FONT FACE="Times New Roman, serif">CopySprite():<BR></FONT></STRONG><FONT SIZE=3><FONT FACE="Times New Roman, serif">CopySprite
+creates only a new sprite when it's needed.(e.g. another bit
+depth)<BR>Try to avoid to use CopySprite() in the main loop whenever
+it's possible. It's not recommended to use this command in the main
+loop, because it's really slow. If you need to use CopySprite()
+often, you should use the DX7 render system!</FONT></FONT></P>
+<HR>
+<P><STRONG><FONT FACE="Times New Roman, serif">SetFrameRate():<BR></FONT></STRONG><FONT SIZE=3><FONT FACE="Times New Roman, serif">If
+you set FrameRate to 0, FlipBuffers() will not wait, except for the
+vertical-blank interval.</FONT></FONT></P>
+<HR>
+<P><STRONG><FONT FACE="Times New Roman, serif">DisplayAlphaSprite():<BR></FONT></STRONG><FONT SIZE=3><FONT FACE="Times New Roman, serif">For
+now this command doesn't work correctly. This command is hardware
+accelerated. So it's much faster.</FONT></FONT></P>
+<HR>
+<P><STRONG><FONT FACE="Times New Roman, serif">DisplayShadowSprite():<BR></FONT></STRONG><FONT SIZE=3><FONT FACE="Times New Roman, serif">This
+command is hardware accelerated. So it's much faster.</FONT></FONT></P>
+<HR>
+<P><STRONG><FONT FACE="Times New Roman, serif">DisplaySolidSprite():<BR></FONT></STRONG><FONT FACE="Times New Roman, serif">This
+command is hardware accelerated. So it's much faster.</FONT></P>
+<HR>
+<P><STRONG><FONT FACE="Times New Roman, serif">InitPalette():</FONT></STRONG><FONT FACE="Times New Roman, serif"><BR>InitPalette()
+is only available for compatibility reason. It does nothing.</FONT></P>
+<HR>
+<P><STRONG><FONT FACE="Times New Roman, serif">CreatePalette():</FONT></STRONG><FONT FACE="Times New Roman, serif"><BR>CreatePalette()
+is only available for compatibility reason. It does nothing.</FONT></P>
+<HR>
+<P><STRONG><FONT FACE="Times New Roman, serif">DisplayPalette():</FONT></STRONG><FONT FACE="Times New Roman, serif"><BR>DisplayPalette()
+is only available for compatibility reason. It does nothing.</FONT></P>
+<HR>
+<P><STRONG><FONT FACE="Times New Roman, serif">FreePalette():</FONT></STRONG><FONT FACE="Times New Roman, serif"><BR>FreePalette()
+is only available for compatibility reason. It does nothing.</FONT></P>
+<HR>
+<P><STRONG><FONT FACE="Times New Roman, serif">GetPaletteColor():</FONT></STRONG><FONT FACE="Times New Roman, serif"><BR>GetPaletteColor()
+is only available for compatibility reason. It does nothing.</FONT></P>
+<HR>
+<P><STRONG><FONT FACE="Times New Roman, serif">IsPalette():</FONT></STRONG><FONT FACE="Times New Roman, serif"><BR>IsPalette()
+is only available for compatibility reason. It does nothing.</FONT></P>
+<HR>
+<P><STRONG><FONT FACE="Times New Roman, serif">LoadPalette():</FONT></STRONG><FONT FACE="Times New Roman, serif"><BR>LoadPalette()
+is only available for compatibility reason. It does nothing.</FONT></P>
+<HR>
+<P><STRONG><FONT FACE="Times New Roman, serif">SetPaletteColor():</FONT></STRONG><FONT FACE="Times New Roman, serif"><BR>SetPaletteColor()
+is only available for compatibility reason. It does nothing.</FONT></P>
+<HR>
+</BODY>
+</HTML>

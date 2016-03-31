@@ -1,0 +1,127 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=windows-1252">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 2.0  (Win32)">
+	<META NAME="CREATED" CONTENT="20060606;11095882">
+	<META NAME="CHANGED" CONTENT="20070606;18443279">
+</HEAD>
+<BODY LANG="de-DE" DIR="LTR">
+<P><STRONG><U><FONT SIZE=6><FONT FACE="Times New Roman, serif"><FONT COLOR="#000000">Optimize
+for the DX9 render system:</FONT></FONT></FONT></U></STRONG></P>
+<TABLE WIDTH=650 BORDER=1 BORDERCOLOR="#000000" CELLPADDING=2 CELLSPACING=0>
+	<COL WIDTH=170>
+	<COL WIDTH=235>
+	<COL WIDTH=231>
+	<TR VALIGN=TOP>
+		<TD WIDTH=170 HEIGHT=21>
+			<P><FONT FACE="Times New Roman, serif"><FONT SIZE=3>Optimize
+			Sprite for: </FONT></FONT>
+			</P>
+		</TD>
+		<TD WIDTH=235>
+			<P><FONT FACE="Times New Roman, serif"><FONT SIZE=3>DX9: </FONT></FONT>
+			</P>
+		</TD>
+		<TD WIDTH=231>
+			<P><FONT FACE="Times New Roman, serif"><FONT SIZE=3>DX7: </FONT></FONT>
+			</P>
+		</TD>
+	</TR>
+	<TR VALIGN=TOP>
+		<TD WIDTH=170 HEIGHT=144>
+			<P><FONT FACE="Times New Roman, serif"><FONT SIZE=3>UseBuffer() </FONT></FONT>
+			</P>
+		</TD>
+		<TD WIDTH=235>
+			<P LANG="en-GB"><FONT FACE="Times New Roman, serif"><FONT SIZE=3>The
+			Sprite should be created in system memory (with #PB_Sprite_Memory)
+			for the best performance. (This is not really important, because
+			the DX9 Subsystem optimizes the Sprite automatically for best
+			performance in this case)</FONT></FONT></P>
+		</TD>
+		<TD WIDTH=231>
+			<P><FONT FACE="Times New Roman, serif"><FONT SIZE=3><SPAN LANG="en-GB">The
+			Sprite should be created in video memory (0 as parameter) for best
+			performance.</SPAN> </FONT></FONT>
+			</P>
+			<P><BR>
+			</P>
+		</TD>
+	</TR>
+	<TR VALIGN=TOP>
+		<TD WIDTH=170>
+			<P><FONT FACE="Times New Roman, serif"><FONT SIZE=3><SPAN LANG="en-GB">SpriteOutput()</SPAN>
+			</FONT></FONT>
+			</P>
+			<P><BR>
+			</P>
+		</TD>
+		<TD WIDTH=235>
+			<P LANG="en-GB"><FONT FACE="Times New Roman, serif"><FONT SIZE=3>The
+			Sprite should be created in system memory (with #PB_Sprite_Memory)
+			for best performance. (This is not really important, because the
+			DX9 Subsystem optimizes the Sprite automatically for best
+			performance in this case)</FONT></FONT></P>
+		</TD>
+		<TD WIDTH=231>
+			<P><FONT FACE="Times New Roman, serif"><FONT SIZE=3><SPAN LANG="en-GB">The
+			Sprite should be created in system memory (with #PB_Sprite_Memory)
+			for best performance.</SPAN> </FONT></FONT>
+			</P>
+			<P><BR>
+			</P>
+		</TD>
+	</TR>
+	<TR VALIGN=TOP>
+		<TD WIDTH=170>
+			<P><FONT FACE="Times New Roman, serif"><FONT SIZE=3><SPAN LANG="en-GB">SpritePixelCollision()</SPAN>
+			</FONT></FONT>
+			</P>
+			<P><BR>
+			</P>
+		</TD>
+		<TD WIDTH=235>
+			<P><FONT FACE="Times New Roman, serif"><FONT SIZE=3><SPAN LANG="en-GB">It
+			doesn&rsquo;t matter weather you created the sprite in video
+			memory or in system memory, because in the DX9 Subsystem the
+			sprite is always backed</SPAN>&nbsp;<SPAN LANG="en-GB">in system
+			memory.</SPAN> </FONT></FONT>
+			</P>
+		</TD>
+		<TD WIDTH=231>
+			<P><FONT FACE="Times New Roman, serif"><FONT SIZE=3><SPAN LANG="en-GB">The
+			Sprite should be created in system memory (with #PB_Sprite_Memory)
+			for best performance.</SPAN> </FONT></FONT>
+			</P>
+			<P><BR>
+			</P>
+		</TD>
+	</TR>
+	<TR VALIGN=TOP>
+		<TD WIDTH=170 HEIGHT=77>
+			<P><FONT FACE="Times New Roman, serif"><FONT SIZE=3><SPAN LANG="en-GB">Fast
+			sprite displaying</SPAN> </FONT></FONT>
+			</P>
+			<P><BR>
+			</P>
+		</TD>
+		<TD WIDTH=235>
+			<P><FONT FACE="Times New Roman, serif"><FONT SIZE=3><SPAN LANG="en-GB">The
+			Sprite should be created in video memory (0 </SPAN>a<SPAN LANG="en-GB">s
+			parameter) for best performance.</SPAN> </FONT></FONT>
+			</P>
+		</TD>
+		<TD WIDTH=231>
+			<P><FONT FACE="Times New Roman, serif"><FONT SIZE=3><SPAN LANG="en-GB">The
+			Sprite should be created in video memory (0 as parameter ) for
+			best performance.</SPAN> </FONT></FONT>
+			</P>
+		</TD>
+	</TR>
+</TABLE>
+<P><BR><BR>
+</P>
+</BODY>
+</HTML>

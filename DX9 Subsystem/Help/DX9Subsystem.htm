@@ -1,0 +1,212 @@
+<html>
+
+<head>
+<meta name="GENERATOR" content="Microsoft FrontPage 5.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>Differences between the DX7</title>
+<style>
+<!--
+table.MsoTableGrid
+	{border:1.0pt solid windowtext;
+	font-size:10.0pt;
+	font-family:"Times New Roman"}
+-->
+</style>
+</head>
+
+<body>
+
+<p><font face="Arial Black" color="#0000ff" size="6"><strong><u>Differences 
+between the DX7- and the DX9 Rendersystem:</u></strong></font></p>
+<p>&nbsp;</p>
+<p><font face="Courier New"><strong>OpenScreen():</strong><br>
+The OpenScreen()-command only supports resoultions of 16Bit and 32Bit. 8Bit and 
+24Bit resolutions are not supported. Use the DX7 Rendersystem if you want to 
+support them too.</font></p>
+<hr>
+<p><font face="Courier New"><strong>OpenWindowedScreen():</strong><br>
+The OpenWindowedScreen()-command only supports desktop resoultions of 16Bit and 
+32Bit. 8Bit and 24Bit resolutions are not supported. Use the DX7 Rendersystem if 
+you want to support them too.</font></p>
+<hr>
+<p><font face="Courier New"><strong>StartSpecialFX():</strong><br>
+StartSpecialFX() is only available for compatibility reason. It does nothing.</font></p>
+<hr>
+<p><font face="Courier New"><strong>StopSpecialFX():</strong><br>
+StopSpecialFX() is only available for compatibility reason. It does nothing.</font></p>
+<hr>
+<p><font face="Courier New"><strong>DisplayRGBFilter():</strong><br>
+The command DisplayRGBFilter() is now hardware accelerated. So it's much faster.</font></p>
+<hr>
+<p><font face="Courier New"><strong>FlipBuffers():</strong><br>
+FlipBuffers(2) works also in windowed mode.</font></p>
+<hr>
+<p><font face="Courier New"><strong>DisplayTranslucentSprite():</strong><br>
+The transparent color set With TransparentSpriteColor() is used as transparent 
+color instead of always black.<br>
+This command is now hardware accelerated. So it's much faster.</font></p>
+<hr>
+<p><font face="Courier New"><strong>UseBuffer():</strong><br>
+Try to avoid to use UseBuffer(<em>Sprite</em>) in the main loop whenever it's 
+possible. It's not recommented to use this command in the main loop, because it's really slow. If 
+you need to use UseBuffer() often, you should use the DX7 Rendersystem!</font></p>
+<hr>
+<p><font face="Courier New"><strong>TransparentSpriteColor():</strong><br>
+Try to avoid to use TransparentSpriteColor() in the main loop.If you need to use 
+TransparentSpriteColor() often in the main loop, you should use the DX7 Rendersystem!</font></p>
+<hr>
+<p><font face="Courier New"><strong>ChangeGamma():</strong><br>
+This command does nothing for now.</font></p>
+<hr>
+<p><font face="Courier New"><strong>SpritePixelCollision():</strong><br>
+Works the same way like SpriteCollision() for now.</font></p>
+<hr>
+<p><font face="Courier New"><strong>GrabSprite():</strong></font></p>
+<p><font face="Courier New">GrabSprite creates only a new sprite when it's 
+needed.(e.g. another size or another bit depth)<br>
+Try to avoid to use GrabSprite() in the main loop whenever it's possible. It's 
+not recommented to use this command in the main loop, because it's really slow. If you need to 
+use GrabSprite() often, you should use the DX7 Rendersystem!</font></p>
+<hr>
+<p><font face="Courier New"><strong>CopySprite():</strong></font></p>
+<p><font face="Courier New">CopySprite creates only a new sprite when it's 
+needed.(e.g. another bit depth)<br>
+Try to avoid to use CopySprite() in the main loop whenever it's possible. It's 
+not recommented to use this command in the main loop, because it's really slow. If you need to 
+use GrabSprite() often, you should use the DX7 Rendersystem!</font></p>
+<hr>
+<p><font face="Courier New"><strong>SetFrameRate():</strong></font></p>
+<p><font face="Courier New"><strong style="font-weight: 400">FrameRate is set to 
+0 by default. (0 works, in contrast to the DX7 Rendersystem)</strong></font></p>
+<hr>
+<p><font face="Courier New"><strong>CreateSprite():</strong></font></p>
+<p><font face="Courier New">In contrast to the DX7 Rendersystem CreateSprite() 
+creates always a texture ressource. This means, that the size of a sprite is 
+limited to the maximum size of a texture.(mostly 2048x2048)</font></p>
+<p><font face="Courier New">The alphachannel of textures created with #PB_Sprite_AlphaBlending 
+is inverted.(This makes it possible to draw correct on alphachannel textures 
+with SpriteOutput())</font></p>
+<hr>
+<p>&nbsp;</p>
+<p><font face="Arial Black" color="#0000ff" size="6"><strong><u>Optimize for the DX9 Rendersystem:</u></strong></font></p>
+<table class="MsoTableGrid" border="1" cellspacing="0" cellpadding="0" style="border-collapse: collapse; border: medium none; margin-left: -3.6pt">
+  <tr>
+    <td width="205" valign="top" style="width: 153.5pt; border: 1.0pt solid windowtext; padding-left: 5.4pt; padding-right: 5.4pt; padding-top: 0cm; padding-bottom: 0cm">
+    <p class="MsoNormal">Optimize Sprite for:</td>
+    <td width="205" valign="top" style="width: 153.55pt; border-left: medium none; border-right: 1.0pt solid windowtext; border-top: 1.0pt solid windowtext; border-bottom: 1.0pt solid windowtext; padding-left: 5.4pt; padding-right: 5.4pt; padding-top: 0cm; padding-bottom: 0cm">
+    <p class="MsoNormal">DX9:</td>
+    <td width="205" valign="top" style="width: 153.55pt; border-left: medium none; border-right: 1.0pt solid windowtext; border-top: 1.0pt solid windowtext; border-bottom: 1.0pt solid windowtext; padding-left: 5.4pt; padding-right: 5.4pt; padding-top: 0cm; padding-bottom: 0cm">
+    <p class="MsoNormal">DX7:</td>
+  </tr>
+  <tr>
+    <td width="205" valign="top" style="width: 153.5pt; border-left: 1.0pt solid windowtext; border-right: 1.0pt solid windowtext; border-top: medium none; border-bottom: 1.0pt solid windowtext; padding-left: 5.4pt; padding-right: 5.4pt; padding-top: 0cm; padding-bottom: 0cm">
+    <p class="MsoNormal">UseBuffer()</td>
+    <td width="205" valign="top" style="width: 153.55pt; border-left: medium none; border-right: 1.0pt solid windowtext; border-top: medium none; border-bottom: 1.0pt solid windowtext; padding-left: 5.4pt; padding-right: 5.4pt; padding-top: 0cm; padding-bottom: 0cm">
+    <p class="MsoNormal"><span lang="EN-GB">The Sprite should be created &nbsp;in 
+    system memory (with #PB_Sprite_Memory) for the best performance. (This is 
+    not really important, because the DX9 Subsystem optimizes the Sprite 
+    automatically for best performance in this case)</span></td>
+    <td width="205" valign="top" style="width: 153.55pt; border-left: medium none; border-right: 1.0pt solid windowtext; border-top: medium none; border-bottom: 1.0pt solid windowtext; padding-left: 5.4pt; padding-right: 5.4pt; padding-top: 0cm; padding-bottom: 0cm">
+    <p class="MsoNormal"><span lang="EN-GB">The Sprite should be created in 
+    video memory (0 as parameter) for best performance.</span></td>
+  </tr>
+  <tr>
+    <td width="205" valign="top" style="width: 153.5pt; border-left: 1.0pt solid windowtext; border-right: 1.0pt solid windowtext; border-top: medium none; border-bottom: 1.0pt solid windowtext; padding-left: 5.4pt; padding-right: 5.4pt; padding-top: 0cm; padding-bottom: 0cm">
+    <p class="MsoNormal"><span lang="EN-GB">SpriteOutput()</span></td>
+    <td width="205" valign="top" style="width: 153.55pt; border-left: medium none; border-right: 1.0pt solid windowtext; border-top: medium none; border-bottom: 1.0pt solid windowtext; padding-left: 5.4pt; padding-right: 5.4pt; padding-top: 0cm; padding-bottom: 0cm">
+    <p class="MsoNormal"><span lang="EN-GB">The Sprite should be created in 
+    system memory (with #PB_Sprite_Memory) for best performance. (This is not 
+    really important, because the DX9 Subsystem optimizes the Sprite 
+    automatically for best performance in this case)</span></td>
+    <td width="205" valign="top" style="width: 153.55pt; border-left: medium none; border-right: 1.0pt solid windowtext; border-top: medium none; border-bottom: 1.0pt solid windowtext; padding-left: 5.4pt; padding-right: 5.4pt; padding-top: 0cm; padding-bottom: 0cm">
+    <p class="MsoNormal"><span lang="EN-GB">The Sprite should be created in 
+    system memory (with #PB_Sprite_Memory) for best performance.</span></td>
+  </tr>
+  <tr>
+    <td width="205" valign="top" style="width: 153.5pt; border-left: 1.0pt solid windowtext; border-right: 1.0pt solid windowtext; border-top: medium none; border-bottom: 1.0pt solid windowtext; padding-left: 5.4pt; padding-right: 5.4pt; padding-top: 0cm; padding-bottom: 0cm">
+    <p class="MsoNormal"><span lang="EN-GB">SpritePixelCollision()</span></td>
+    <td width="205" valign="top" style="width: 153.55pt; border-left: medium none; border-right: 1.0pt solid windowtext; border-top: medium none; border-bottom: 1.0pt solid windowtext; padding-left: 5.4pt; padding-right: 5.4pt; padding-top: 0cm; padding-bottom: 0cm">
+    <p class="MsoNormal"><span lang="EN-GB">It doesn’t matter weather you 
+    created the sprite in video memory or in system memory, because in the DX9 
+    Subsystem the sprite is always backsaved in system memory.</span></td>
+    <td width="205" valign="top" style="width: 153.55pt; border-left: medium none; border-right: 1.0pt solid windowtext; border-top: medium none; border-bottom: 1.0pt solid windowtext; padding-left: 5.4pt; padding-right: 5.4pt; padding-top: 0cm; padding-bottom: 0cm">
+    <p class="MsoNormal"><span lang="EN-GB">The Sprite should be created in 
+    system memory (with #PB_Sprite_Memory) for best performance.</span></td>
+  </tr>
+  <tr>
+    <td width="205" valign="top" style="width: 153.5pt; border-left: 1.0pt solid windowtext; border-right: 1.0pt solid windowtext; border-top: medium none; border-bottom: 1.0pt solid windowtext; padding-left: 5.4pt; padding-right: 5.4pt; padding-top: 0cm; padding-bottom: 0cm">
+    <p class="MsoNormal"><span lang="EN-GB">Fast sprite displaying</span></td>
+    <td width="205" valign="top" style="width: 153.55pt; border-left: medium none; border-right: 1.0pt solid windowtext; border-top: medium none; border-bottom: 1.0pt solid windowtext; padding-left: 5.4pt; padding-right: 5.4pt; padding-top: 0cm; padding-bottom: 0cm">
+    <p class="MsoNormal"><span lang="EN-GB">The Sprite should be created in 
+    video memory (0  </span>a<span lang="EN-GB">s parameter) &nbsp;for best performance.</span></td>
+    <td width="205" valign="top" style="width: 153.55pt; border-left: medium none; border-right: 1.0pt solid windowtext; border-top: medium none; border-bottom: 1.0pt solid windowtext; padding-left: 5.4pt; padding-right: 5.4pt; padding-top: 0cm; padding-bottom: 0cm">
+    <p class="MsoNormal"><span lang="EN-GB">The Sprite should be created in 
+    video memory (0 as parameter ) for best performance.</span></td>
+  </tr>
+</table>
+<p><font face="Arial Black" color="#0000ff" size="6"><strong><u>Supported 
+commands of the DX9 Subsystem:</u></strong></font></p>
+<table border="0">
+  <tr>
+    <td>
+    <p align="left"><br>
+    <font face="Courier New" size="4"><strong style="font-weight: 400">
+    AvailableScreenMemory()<img border="0" src="DX9Sub1.gif" width="8" height="7"><br>
+    CatchSprite()<img border="0" src="DX9Sub2.gif" width="8" height="7"><br>
+    ChangeAlphaIntensity()<br>
+    ChangeGamma()<img border="0" src="DX9Sub3.gif" width="8" height="7"><br>
+    ClearScreen()<img border="0" src="DX9Sub4.gif" width="8" height="7"><br>
+    ClipSprite()<img border="0" src="DX9Sub5.gif" width="8" height="7"><br>
+    CloseScreen()<img border="0" src="DX9Sub6.gif" width="8" height="7"><br>
+    CopySprite()<img border="0" src="DX9Sub7.gif" width="8" height="7"><br>
+    CreateSprite()<img border="0" src="DX9Sub8.gif" width="8" height="7"><br>
+    DisplayAlphaSprite()<br>
+    DisplayRGBFilter()<img border="0" src="DX9Sub9.gif" width="8" height="7"><br>
+    DisplayShadowSprite()<br>
+    DisplaySolidSprite()<br>
+    DisplaySprite()<img border="0" src="DX9Sub10.gif" width="8" height="7"><br>
+    DisplayTranslucentSprite()<img border="0" src="DX9Sub11.gif" width="8" height="7"><br>
+    DisplayTransparentSprite()<img border="0" src="DX9Sub12.gif" width="8" height="7"><br>
+    ExamineScreenModes()<img border="0" src="DX9Sub13.gif" width="8" height="7"><br>
+    FlipBuffers()<img border="0" src="DX9Sub14.gif" width="8" height="7"><br>
+    FreeSprite()<img border="0" src="DX9Sub15.gif" width="8" height="7"><br>
+    GrabSprite()<img border="0" src="DX9Sub16.gif" width="8" height="7"><br>
+    InitSprite()<img border="0" src="DX9Sub17.gif" width="8" height="7"><br>
+    IsScreenActive()<img border="0" src="DX9Sub18.gif" width="8" height="7"><br>
+    IsSprite()<img border="0" src="DX9Sub19.gif" width="8" height="7"><br>
+    LoadSprite()<img border="0" src="DX9Sub20.gif" width="8" height="7"><br>
+    NextScreenMode()<img border="0" src="DX9Sub21.gif" width="8" height="7"><br>
+    OpenScreen()<img border="0" src="DX9Sub22.gif" width="8" height="7"><br>
+    OpenWindowedScreen()<img border="0" src="DX9Sub23.gif" width="8" height="7"><br>
+    SaveSprite()<br>
+    ScreenID()<img border="0" src="DX9Sub24.gif" width="8" height="7"><br>
+    ScreenModeDepth()<img border="0" src="DX9Sub25.gif" width="8" height="7"><br>
+    ScreenModeHeight()<img border="0" src="DX9Sub26.gif" width="8" height="7"><br>
+    ScreenModeRefreshRate()<img border="0" src="DX9Sub27.gif" width="8" height="7"><br>
+    ScreenModeWidth()<img border="0" src="DX9Sub28.gif" width="8" height="7"><br>
+    ScreenOutput()<img border="0" src="DX9Sub29.gif" width="8" height="7"><br>
+    SetFrameRate()<img border="0" src="DX9Sub30.gif" width="8" height="7"><br>
+    SetRefreshRate()<img border="0" src="DX9Sub31.gif" width="8" height="7"><br>
+    SpriteCollision()<img border="0" src="DX9Sub32.gif" width="8" height="7"><br>
+    SpriteDepth()<img border="0" src="DX9Sub33.gif" width="8" height="7"><br>
+    SpriteHeight()<img border="0" src="DX9Sub34.gif" width="8" height="7"><br>
+    SpriteID()<img border="0" src="DX9Sub35.gif" width="8" height="7"><br>
+    SpriteOutput()<img border="0" src="DX9Sub36.gif" width="8" height="7"><br>
+    SpritePixelCollision()<img border="0" src="DX9Sub37.gif" width="8" height="7"><br>
+    SpriteWidth()<img border="0" src="DX9Sub38.gif" width="8" height="7"><br>
+    StartSpecialFX()<img border="0" src="DX9Sub39.gif" width="8" height="7"><br>
+    StopSpecialFX()<img border="0" src="DX9Sub40.gif" width="8" height="7"><br>
+    TransparentSpriteColor()<img border="0" src="DX9Sub41.gif" width="8" height="7"><br>
+    UseBuffer()<img border="0" src="DX9Sub42.gif" width="8" height="7"></strong></font></td>
+  </tr>
+</table>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+</body>
+
+</html>

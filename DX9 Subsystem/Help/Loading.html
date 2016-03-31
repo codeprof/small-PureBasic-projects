@@ -1,0 +1,50 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=windows-1252">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 2.0  (Win32)">
+	<META NAME="CREATED" CONTENT="20070606;18175981">
+	<META NAME="CHANGED" CONTENT="20070606;18475618">
+</HEAD>
+<BODY LANG="de-DE" DIR="LTR">
+<P STYLE="font-weight: medium; text-decoration: none"><FONT SIZE=3><B><U><FONT SIZE=6>How
+to improve loading speed of LoadSprite() and CatchSprite()?<BR><BR></FONT></U></B>You
+can easyly reduce the needed time for loading if you load your sprite
+with the flags #PB_Sprite_Memory or
+#PB_Sprite_Texture|#PB_Sprite_AlphaBlending.<BR>If you don't want to
+use these types of sprite (as #PB_Sprite_Memory is slower in
+displaying) you should avoid TransparentSpriteColor() calls after
+loading the sprite, as they are really really slow:</FONT></P>
+<P><FONT SIZE=4><U><B>Faster way:</B></U></FONT></P>
+<TABLE WIDTH=100% BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0 STYLE="page-break-inside: avoid">
+	<COL WIDTH=256*>
+	<THEAD>
+		<TR>
+			<TD WIDTH=100% VALIGN=TOP BGCOLOR="#ffffcc">
+				<P STYLE="font-weight: medium; text-decoration: none"><FONT SIZE=3>TransparentSpriteColor(#PB_Default,#Magenta)<BR>LoadSprite(1,&ldquo;sprite1.bmp&ldquo;)<BR>LoadSprite(2,&ldquo;sprite2.bmp&ldquo;)<BR>LoadSprite(3,&ldquo;sprite3.bmp&ldquo;)<BR>...</FONT></P>
+			</TD>
+		</TR>
+	</THEAD>
+</TABLE>
+<P STYLE="font-weight: medium; text-decoration: none"><FONT SIZE=3><BR><BR><B><U><FONT SIZE=4>Slow
+way:</FONT></U></B></FONT></P>
+<TABLE WIDTH=100% BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0 STYLE="page-break-inside: avoid">
+	<COL WIDTH=256*>
+	<THEAD>
+		<TR>
+			<TD WIDTH=100% VALIGN=TOP BGCOLOR="#ffffcc">
+				<P STYLE="font-weight: medium; text-decoration: none"><FONT SIZE=3>LoadSprite(1,&ldquo;sprite1.bmp&ldquo;)<BR>TransparentSpriteColor(1,#Magenta)<BR>LoadSprite(2,&ldquo;sprite2.bmp&ldquo;)<BR>TransparentSpriteColor(2,#Magenta)<BR>LoadSprite(3,&ldquo;sprite3.bmp&ldquo;)<BR>TransparentSpriteColor(3,#Magenta)<BR>...</FONT></P>
+			</TD>
+		</TR>
+	</THEAD>
+</TABLE>
+<P STYLE="font-weight: medium; text-decoration: none"><FONT SIZE=3><BR>Note:<BR>Even
+if you use this faster way, loading sprites with the dx9 subsystem is
+slower than with the dx7 subsystem, because there is much more
+internal work to do.<BR></FONT><BR><BR>
+</P>
+<P><BR><BR>
+</P>
+</BODY>
+</HTML>
