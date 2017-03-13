@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>Test</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+		<meta name="description" content="test"/>
+		<meta name="author" content="test"/>
+		<meta name="keywords" content="test"/>
+		<link rel="stylesheet" type="text/css" href="css/styling.css"/>
+	</head>
+
+	<body>
+		<div class="container">	
+			<h1>HTML Viewer</h1>
+			<br>		
+			<div class="textblock">
+				<h2>Screenshot<a name="screenshot"></a></h2>			
+				<img src="img/screenshot.png" alt="Screenshot" width="500"/>
+			</div>			
+
+			<div class="textblock">
+				<h2>Parameters<a name="params"></a></h2>			
+				<ul>
+					<li><h3>/TITLE</h3>declares the text for the titlebar<br><br></li>				
+					<li><h3>/START</h3>open a file from a absolute path or an URL (&quot;http://my-domain-xyz.com&quot;)<br><br></li>
+					<li><h3>/STARTFILE</h3>open a file from a relative path(&quot;files/start.html&quot;)<br><br></li>
+					<li><h3>/HIDDENPROCESSES</h3>starts processes hidden<br><br></li>
+					<li><h3>/PROTECTPROCESS</h3>protects process against manipulation of other processes<br><br></li>					
+					<li><h3>/WIDTH</h3>declares the width of the window (by default the window is opened maximized)<br><br></li>				
+					<li><h3>/HEIGHT</h3>declares the height of the window (by default the window is opened maximized)<br><br></li>				
+					<li><h3>/FULLSCREEN</h3>opens the window in fullscreen mode<br><br></li>	
+					<li><h3>/STICKY</h3>opens the window as topmost window<br><br></li>	
+					<li><h3>/NOSCREENSHOT</h3>prevents screenshots<br><br></li>	
+					<li><h3>/NOMENU</h3>disables all popup menus<br><br></li>	
+					<li><h3>/NOHOTKEYS</h3>disables hotkeys<br><br></li>	
+					<li><h3>/NODRAG</h3>disables the drag operations<br><br></li>	
+					<li><h3>/PROTECT</h3>Combination of /NOSCREENSHOT, /NOMENU, /NOHOTKEYS and /NODRAG<br><br></li>						
+					<li><h3>/NORESIZE</h3>do not allow to resize the window<br><br></li>						
+			</div>
+			
+			<div class="textblock">
+				<h2>Additional protocols<a name="protocols"></a></h2>			
+				<ul>
+					<li><h3>exec://...</h3>executes a file. The placeholders %25CURRENT_DIR%25, %25EXE_DIR%25, %25TEMP_DIR%25", %25HOME_DIR%25" and %25SYSTEM_DIR%25" can be used. With exec://close the program gets closed, with exec://toggle the fullscreen mode is toggled.<br><br></li>				
+					<li><h3>execc://</h3>The same as exec:// but always closes the application afterwards.<br><br></li>					
+			</div>
+			
+			<div class="textblock">
+				<h2>Test cases<a name="tests"></a></h2>
+				<ul>
+					<li>
+						<h3>Execute EXE file with parameter</h3><a href="exec://%25EXE_DIR%25testData\TextMsg.exe?param1=%22Hello%20World!%22">MessageBox</a><br><br>
+					</li>
+					<li>
+						<h3>Execute VBS file</h3><a href="exec://%25EXE_DIR%25testData\test.VBS">test</a><br><br>
+					</li>
+					<li>
+						<h3>Execute VBS file and close</h3><a href="execc://%25EXE_DIR%25testData\test.VBS">test</a><br><br>
+					</li>
+					<li>
+						<h3>close</h3><a href="exec://close">close</a><br><br>
+					</li>
+					<li>
+						<h3>toggle Fullscreen</h3><a href="exec://toggle">toggle</a><br><br>
+					</li>
+					<li>
+						<h3>open seperate browser</h3><a href="exec://http://www.google.de">open</a><br><br>
+					</li>
+					<li>
+						<h3>open home directory</h3><a href="exec://file://%25HOME_DIR%25">open</a><br><br>
+					</li>													
+				</ul>
+				<p>&nbsp;</p>
+			</div>
+		</div>
+	</body>
+</html>
