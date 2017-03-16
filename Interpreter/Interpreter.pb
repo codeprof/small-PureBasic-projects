@@ -42,7 +42,7 @@ Global NewMap execGoto.i()
 
 #SUPPORTED_OPERATORS = ",~!;|&<>=-+*/^"
 Procedure evalError(msg.s)
-  Debug "ERROR:" + msg
+  Debug "ERROR:" + msg + "LINE:"
   End
 EndProcedure  
 
@@ -817,17 +817,33 @@ Procedure.s my_sin(params)
 EndProcedure  
 
 Procedure.s my_msg(params)
-  MessageRequester("TEST", UnescapeString(StringField(PeekS(params),1,Chr(9))))
+  title.s = UnescapeString(StringField(PeekS(params),1,Chr(9)))
+  text.s = UnescapeString(StringField(PeekS(params),2,Chr(9))) 
+  MessageRequester(title.s, text.s)
   ProcedureReturn "" 
 EndProcedure
 
 Procedure.s my_question(params)
-  If MessageRequester("TEST", UnescapeString(StringField(PeekS(params),1,Chr(9))),  #PB_MessageRequester_YesNo) =  #PB_MessageRequester_Yes    
+  title.s = UnescapeString(StringField(PeekS(params),1,Chr(9)))
+  text.s = UnescapeString(StringField(PeekS(params),2,Chr(9)))
+  If MessageRequester(title.s, text.s, #PB_MessageRequester_YesNo) =  #PB_MessageRequester_Yes    
     ProcedureReturn "1" 
   Else
     ProcedureReturn "0"     
   EndIf  
 EndProcedure
+
+Procedure.s my_filewrite(params)
+  file.s = UnescapeString(StringField(PeekS(params),1,Chr(9)))
+  content.s = UnescapeString(StringField(PeekS(params),2,Chr(9)))
+
+  CreateFile(1,file)
+  WriteStringN(1, content)
+  CloseFile(1)
+  ProcedureReturn ""     
+EndProcedure
+
+
 
 vars("PI") = "3.1415926535897931"
 vars("E") = "2.7182818284590451"
@@ -839,6 +855,7 @@ funcs("cos") = @my_cos()
 funcs("sin") = @my_sin()
 funcs("msg") = @my_msg()
 funcs("question") = @my_question()
+funcs("filewrite") = @my_filewrite()
 
 ;arrNames("a") = #True
 ;evalExpression("cos(4,7)")
@@ -847,20 +864,21 @@ funcs("question") = @my_question()
 ;evalAssign("msg('a'+'b')|msg('hi','too')")
 
 Dim lines.s(100)
-lines(0) = "dim ficken"
-lines(1) = "ficken(0) = 1"
-lines(2) = "ficken(1) = 2"
+lines(0) = "dim f"
+lines(1) = "f(0) = 1"
+lines(2) = "f(1) = 2"
 lines(3) = "while A<10"
 lines(4) = "A=A+1"
 lines(5) = "if A=8"
 lines(6) = "msg(A)"
 lines(7) = "if question('beenden?')"
-lines(8) = "end"
-lines(9) = "msg('not show this')"
-lines(10) = "endif"
+lines(8) = "filewrite('F:\test.txt', 'HELLO WORLD')"
+lines(9) = "end"
+lines(10) = "msg('not show this')"
 lines(11) = "endif"
-lines(12) = "wend"
-lines(13) = "end"
+lines(12) = "endif"
+lines(13) = "wend"
+lines(14) = "end"
 
 execDept("0") = #True
 Repeat
@@ -869,7 +887,7 @@ Repeat
   Debug vars("A")
   
   Debug "line " + Str(currentline)
-Until currentline > 12 Or currentline=-1
+Until currentline > 14 Or currentline=-1
 
 ; Debug tokenize(0)
 ; 
