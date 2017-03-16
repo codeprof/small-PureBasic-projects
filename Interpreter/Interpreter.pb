@@ -42,7 +42,7 @@ Global NewMap execGoto.i()
 #SUPPORTED_OPERATORS = ",~!;|&<>=-+*/^"
 Procedure evalError(msg.s)
   Debug "ERROR:" + msg
-  ;End
+  End
 EndProcedure  
 
 Procedure isValidVariable(str.s)
@@ -548,10 +548,10 @@ EndProcedure
 
 Procedure.s evalToken(tok.s)
   While Left(tok,1) = "#"
-    Debug "RESOLVE:" + tok      
+    ;Debug "RESOLVE:" + tok      
     last_tok.s = Right(tok, Len(tok)-1)  
     tok = token(last_tok.s)
-    Debug "RESOLVED:" + tok
+    ;Debug "RESOLVED:" + tok
     ;     If tok = "" And last_tok = "E"
     ;       Debug "ERROR: Empty expression"
     ;     EndIf  
@@ -563,8 +563,9 @@ Procedure.s evalToken(tok.s)
     
     tok = ""
     For i = 1 To Len(seperators)+1
-      tok + EscapeString(prepareOperator(evalToken("#"+StringField(params, i, "#")),@dummy))+Chr(9) ; ecape parameters and seperate by tab (chr(9))  ; avoid @'s with prepareOperator  ;IMPORTANT: unescape!!!
+      tok + EscapeString(prepareOperator(evalToken("#"+StringField(params, i, "#")),@dummy))+Chr(9) ; escape parameters and seperate by tab (chr(9))  ; avoid @'s with prepareOperator  ;IMPORTANT: unescape!!!
     Next  
+    Debug "TOK "+tok
     
   ElseIf FindString(#SUPPORTED_OPERATORS, Left(tok,1))
     
@@ -597,13 +598,21 @@ Procedure.s evalToken(tok.s)
     If FindMapElement(arrNames(), function)
       tok = arrsContent(function + Chr(9) + params)
     ElseIf FindMapElement(funcs(), function)
+      ;Special case of one parameter. There is no ","-Operator and so prepareOperator get not called
+      If Not FindString(params, Chr(9)) 
+        params = EscapeString(prepareOperator(params, @dummy))
+      EndIf
+      
       tok = PeekS(CallFunctionFast(funcs(function), @params))
+      If tok = "" ;IMPORTANT: not allowed to return "" (e.g. msg(1)+msg(2)
+        tok = "@"
+      EndIf  
     Else
       evalError("function/array '" + function + "' is not implemented")
     EndIf  
   EndIf  
   
-  Debug "RESULT:" + tok
+  ;Debug "RESULT:" + tok
   ProcedureReturn tok   
 EndProcedure
 
@@ -615,18 +624,22 @@ Procedure IsTrue(str.s)
     ProcedureReturn #False
   EndIf  
 EndProcedure  
-  
-Procedure evalExpression(str.s)
+
+Procedure.s evalPrepare(str.s)
   ClearMap(token())
-  ClearMap(operators())  
+  ClearMap(operators())   
   pos = 1
   inString = #False
   inComment = #False 
   layer_index = 0  
   line = str
-  tok.s = tokenize(0)
-  
-;DEBUGGING:  
+  ProcedureReturn tokenize(0)  
+EndProcedure
+
+
+Procedure evalTrueFalse(str.s)
+  tok.s = evalPrepare(str)
+;;DEBUGGING:  
 ;   Debug tok
 ;   Debug "======"
 ;   ForEach token()
@@ -637,15 +650,23 @@ Procedure evalExpression(str.s)
   ProcedureReturn IsTrue(evalToken(tok)) ;prepareOperator because of problem if expression consists only out of a constant string (@-char)
 EndProcedure  
 
+Procedure.s evalExpression(str.s)
+  tok.s = evalPrepare(str)
+;;DEBUGGING:  
+;   Debug tok
+;   Debug "======"
+;   ForEach token()
+;     Debug  MapKey(token()) + "    =   "  + token()    
+;   Next 
+;   Debug "==================="
+  
+  ProcedureReturn prepareOperator(evalToken(tok), @dummy) ;prepareOperator because of problem if expression consists only out of a constant string (@-char)
+EndProcedure  
+
 Procedure evalAssign(str.s)
-  ClearMap(token())
-  ClearMap(operators())  
-  pos = 1
-  inString = #False
-  inComment = #False
-  layer_index = 0
-  line = str
-  tok.s = tokenize(0)
+  tok.s = evalPrepare(str)
+  
+  tokorg.s = tok
   If Left(tok,1) =  "#" 
     tok.s = Right(tok, Len(tok)-1)  
     tok = token(tok.s)
@@ -653,12 +674,13 @@ Procedure evalAssign(str.s)
     evalError("token expected")
   EndIf
   
-;    Debug tok
-;    Debug "======"
-;    ForEach token()
-;      Debug  MapKey(token()) + "    =   "  + token()    
-;    Next 
-;    Debug "===================" 
+;;DEBUGGING:  
+     Debug tok
+     Debug "======"
+     ForEach token()
+       Debug  MapKey(token()) + "    =   "  + token()    
+     Next 
+     Debug "===================" 
   
   If Left(tok,2) = "=#"
     tok = Right(tok, Len(tok)-2)
@@ -668,23 +690,30 @@ Procedure evalAssign(str.s)
     If Left(var,1 ) = "V"
       vars(token(var)) = prepareOperator(evalToken("#"+exp), @dummy) ;prepareOperator because of problem if expression consists only out of a constant string (@-char)
 
-   ElseIf Left(var,1 ) = "F"
-     Debug "ITS AN ARRAY"
+   ElseIf Left(var,1 ) = "F" ;Its an array
      ;TODO:Checks
      arrayname.s = StringField(token(var), 1, "#")
-     exp2.s = StringField(token(var), 2, "#")
-     result.s = prepareOperator(evalToken("#"+exp), @dummy)
-     param.s = prepareOperator(evalToken("#"+exp2), @dummy) ;prepareOperator because of problem if expression consists only out of a constant string (@-char)
-     
-     
-     Debug "{" + arrayname +Chr(9) + param + "}  =   " + result
-     arrsContent(arrayname + Chr(9) + param) = result
+     If FindMapElement(arrNames(), arrayname)
+       tok.s = StringField(token(var), 2, "#")
+       If tok <> ""
+       result.s = prepareOperator(evalToken("#"+exp), @dummy)
+       param.s = prepareOperator(evalToken("#"+tok), @dummy) ;prepareOperator because of problem if expression consists only out of a constant string (@-char) 
+       
+       ;Debug "{" + arrayname +Chr(9) + param + "}  =   " + result
+       arrsContent(arrayname + Chr(9) + param) = result
+     Else
+        evalError("token expected")
+       EndIf
+      Else
+        evalError("'" + arrayname + "' is no declared array name") 
+      EndIf  
     Else
       evalError("variable/array expected on left side")
     EndIf     
     
   Else
-    evalError("assignment expected")
+    ;evalError("assignment or function call expected")
+    evalToken(tokorg) ;ignore result (tokorg, because function should also be executed! BUG: msg('1')+msg('2') is possible!
   EndIf  
 EndProcedure
 
@@ -698,7 +727,7 @@ Procedure evalLine(str.s, lineNumber)
   If cmd = "if"
     exec_dept + 1
     If canExecuteDepth
-      execDept(Str(exec_dept)) = evalExpression(exp)
+      execDept(Str(exec_dept)) = evalTrueFalse(exp)
     Else
       execDept(Str(exec_dept)) = #False
     EndIf       
@@ -711,7 +740,7 @@ Procedure evalLine(str.s, lineNumber)
   ElseIf cmd = "while"
      exec_dept + 1
     If canExecuteDepth
-      execDept(Str(exec_dept)) = evalExpression(exp)
+      execDept(Str(exec_dept)) = evalTrueFalse(exp)
     Else
       execDept(Str(exec_dept)) = #False
     EndIf
@@ -746,11 +775,9 @@ Procedure evalLine(str.s, lineNumber)
   ProcedureReturn newLineNumber
 EndProcedure
 
-
 ;binOr,binAnd,hex,...
 
 Procedure.s my_cos(params)
-
   ProcedureReturn StrD(Cos(ValD(StringField(PeekS(params),1,Chr(9)))))
 EndProcedure  
 
@@ -760,7 +787,7 @@ EndProcedure
 
 Procedure.s my_msg(params)
   MessageRequester("", UnescapeString(StringField(PeekS(params),1,Chr(9))))
-  ProcedureReturn ""
+  ProcedureReturn "" 
 EndProcedure
 
 
@@ -776,13 +803,13 @@ funcs("msg") = @my_msg()
 
 
 
-arrNames("A") = #True
+arrNames("a") = #True
 
 ;evalExpression("cos(4,7)")
-evalAssign("A(4,a,'affe')=7.5")
-evalAssign("X=msg(A(4,1000.5,'af' + 'fe'))")
+evalAssign("a()=7.5")
+;evalAssign("msg(a())+msg('hi')")
 
-
+evalAssign("msg('a'+'b')|msg('hi','too')")
 
 If 1=2
 Dim lines.s(10)
