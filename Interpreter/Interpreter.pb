@@ -42,7 +42,7 @@ Global NewMap execGoto.i()
 
 #SUPPORTED_OPERATORS = ",~!;|&<>=-+*/^"
 Procedure evalError(msg.s)
-  Debug "ERROR:" + msg + "LINE:"
+  Debug "ERROR:" + msg
   End
 EndProcedure  
 
@@ -158,8 +158,8 @@ Procedure.s ApplyOperator(str.s, op.s)
   If FindString(str, op)
     operators.s = StringField(str, 1, "#")
     operands.s = Right(str, Len(str) - (Len(operators.s) + 1)) ;also remove the first "#", so we can use the remeaing "#"'s as seperator easyly
-                                                               ;Debug operators.s
-                                                               ;Debug operands.s
+   ;Debug operators.s
+   ;Debug operands.s
     
     i = 1
     While FindString(operators.s, op)
@@ -564,7 +564,10 @@ Procedure.s evalToken(tok.s)
     
     tok = ""
     For i = 1 To Len(seperators)+1
-      tok + EscapeString(prepareOperator(evalToken("#"+StringField(params, i, "#")),@dummy))+Chr(9) ; escape parameters and seperate by tab (chr(9))  ; avoid @'s with prepareOperator  ;IMPORTANT: unescape!!!
+      tok + EscapeString(prepareOperator(evalToken("#"+StringField(params, i, "#")),@type))+Chr(9) ; escape parameters and seperate by tab (chr(9))  ; avoid @'s with prepareOperator  ;IMPORTANT: unescape!!!
+      If type = #DATATYPE_UNKNOWN
+        evalError("invalid type")
+      EndIf  
     Next  
     
   ElseIf FindString(#SUPPORTED_OPERATORS, Left(tok,1))
@@ -600,7 +603,11 @@ Procedure.s evalToken(tok.s)
     ElseIf FindMapElement(funcs(), function)
       ;Special case of one parameter. There is no ","-Operator and so prepareOperator get not called
       If Not FindString(params, Chr(9)) 
-        params = EscapeString(prepareOperator(params, @dummy))
+        params = EscapeString(prepareOperator(params, @type))     
+        If type = #DATATYPE_UNKNOWN
+          evalError("invalid type")
+        EndIf 
+      
       EndIf
       
       tok = PeekS(CallFunctionFast(funcs(function), @params))
@@ -660,7 +667,11 @@ Procedure.s evalExpression(str.s)
   ;   Next 
   ;   Debug "==================="
   
-  ProcedureReturn prepareOperator(evalToken(tok), @dummy) ;prepareOperator because of problem if expression consists only out of a constant string (@-char)
+  res.s = prepareOperator(evalToken(tok), @type) ;prepareOperator because of problem if expression consists only out of a constant string (@-char)
+  If type = #DATATYPE_UNKNOWN
+    evalError("invalid type")
+  EndIf 
+  ProcedureReturn res
 EndProcedure  
 
 Procedure evalAssign(str.s)
@@ -688,7 +699,11 @@ Procedure evalAssign(str.s)
     exp.s = StringField(tok, 2, "#")
     
     If Left(var,1 ) = "V"
-      vars(token(var)) = prepareOperator(evalToken("#"+exp), @dummy) ;prepareOperator because of problem if expression consists only out of a constant string (@-char)
+      vars(token(var)) = prepareOperator(evalToken("#"+exp), @type) ;prepareOperator because of problem if expression consists only out of a constant string (@-char)
+      If type = #DATATYPE_UNKNOWN
+        evalError("invalid type")
+      EndIf 
+      ProcedureReturn res      
       
     ElseIf Left(var,1 ) = "F" ;Its an array
                               ;TODO:Checks
@@ -696,9 +711,17 @@ Procedure evalAssign(str.s)
       If FindMapElement(arrNames(), arrayname)
         tok.s = StringField(token(var), 2, "#")
         If tok <> ""
-          result.s = prepareOperator(evalToken("#"+exp), @dummy)
-          param.s = prepareOperator(evalToken("#"+tok), @dummy) ;prepareOperator because of problem if expression consists only out of a constant string (@-char) 
-          
+          result.s = prepareOperator(evalToken("#"+exp), @type)
+          If type = #DATATYPE_UNKNOWN
+            evalError("invalid type")
+          EndIf 
+          ProcedureReturn res          
+          param.s = prepareOperator(evalToken("#"+tok), @type) ;prepareOperator because of problem if expression consists only out of a constant string (@-char) 
+          If type = #DATATYPE_UNKNOWN
+            evalError("invalid type")
+          EndIf 
+          ProcedureReturn res          
+                  
           ;Debug "{" + arrayname +Chr(9) + param + "}  =   " + result
           arrsContent(arrayname + Chr(9) + param) = result
         Else
@@ -713,7 +736,10 @@ Procedure evalAssign(str.s)
     
   Else
     ;evalError("assignment or function call expected")
-    evalToken(tokorg) ;ignore result (tokorg, because function should also be executed! BUG: msg('1')+msg('2') is possible!
+    prepareOperator(evalToken(tokorg),@type) ;ignore result (tokorg, because function should also be executed! BUG: msg('1')+msg('2') is possible!
+    If type = #DATATYPE_UNKNOWN
+      evalError("invalid type")
+    EndIf     
   EndIf  
 EndProcedure
 
@@ -857,6 +883,13 @@ funcs("msg") = @my_msg()
 funcs("question") = @my_question()
 funcs("filewrite") = @my_filewrite()
 
+arrNames("a") = #True
+evalAssign("msg('o')")
+
+Debug vars("a")
+
+End
+
 ;arrNames("a") = #True
 ;evalExpression("cos(4,7)")
 ;evalAssign("a()=7.5")
@@ -884,9 +917,9 @@ execDept("0") = #True
 Repeat
 
   currentline = evalLine(lines(currentline), currentline)
-  Debug vars("A")
+  ;Debug vars("A")
   
-  Debug "line " + Str(currentline)
+  ;Debug "line " + Str(currentline)
 Until currentline > 14 Or currentline=-1
 
 ; Debug tokenize(0)
