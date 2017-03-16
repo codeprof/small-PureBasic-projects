@@ -281,7 +281,7 @@ Procedure.s tokenize(layer)
     ElseIf ch = ")" And (Not inString) And (Not inComment)     
       token(Str(layer)) = ApplyOperators(splitOperators(ReplaceOperators(coll)))
       If layer = 0
-        evalError("bracked was not opened before") 
+        evalError("bracket was not opened before") 
       Else
         ProcedureReturn "#" + Str(layer)    
       EndIf
@@ -305,7 +305,7 @@ Procedure.s tokenize(layer)
     EndIf  
   Wend
   If inString Or layer > 0
-    evalError("bracked not closed")
+    evalError("bracket not closed")
   Else  
     ProcedureReturn ApplyOperators(splitOperators(ReplaceOperators(coll)))
   EndIf  
@@ -344,7 +344,7 @@ Procedure.s evalOperator(operators.s, operand1.s, operand2.s)
   Debug "OP:" + operators.s +" " + operand1.s + " "+ operand2.s
   
   If type1 = #DATATYPE_UNKNOWN
-    evalError("Invalid type9")
+    evalError("Invalid type")
   EndIf  
   If type2 = #DATATYPE_UNKNOWN
     If (operators = "-") And (operand2 = "") And (type1 = #DATATYPE_NUMBER)
@@ -569,7 +569,7 @@ Procedure.s evalToken(tok.s)
     For i = 1 To Len(seperators)+1
       tok + EscapeString(prepareOperator(evalToken("#"+StringField(params, i, "#")),@type))+Chr(9) ; escape parameters and seperate by tab (chr(9))  ; avoid @'s with prepareOperator  ;IMPORTANT: unescape!!!
       If type = #DATATYPE_UNKNOWN
-        evalError("invalid type8")
+        evalError("invalid type")
       EndIf  
     Next  
     
@@ -616,10 +616,11 @@ Procedure.s evalToken(tok.s)
       ElseIf Not FindString(params, Chr(9)) 
         params = EscapeString(prepareOperator(params, @type))     
         If type = #DATATYPE_UNKNOWN
-          evalError("invalid type7")
+          evalError("invalid type")
         EndIf 
       EndIf
       
+      ;TODO: It is not possible to distinguish between 0 and '0'!
       tok = PeekS(CallFunctionFast(funcs(function), @params))
       If tok = "" ;IMPORTANT: not allowed to return "" (e.g. msg(1)+msg(2)
         tok = "@"
@@ -668,6 +669,9 @@ Procedure evalTrueFalse(str.s)
 EndProcedure  
 
 Procedure.s evalExpression(str.s)
+  If str = ""
+    ProcedureReturn ""
+  EndIf  
   tok.s = evalPrepare(str)
   ;;DEBUGGING:  
   ;   Debug tok
@@ -679,7 +683,7 @@ Procedure.s evalExpression(str.s)
   
   res.s = prepareOperator(evalToken(tok), @type) ;prepareOperator because of problem if expression consists only out of a constant string (@-char)
   If type = #DATATYPE_UNKNOWN
-    evalError("invalid type5")
+    evalError("invalid type")
   EndIf 
   ProcedureReturn res
 EndProcedure  
@@ -847,6 +851,7 @@ EndProcedure
 Procedure.s my_msg(params)
   title.s = UnescapeString(StringField(PeekS(params),1,Chr(9)))
   text.s = UnescapeString(StringField(PeekS(params),2,Chr(9))) 
+  Debug "T:" + title
   MessageRequester(title.s, text.s)
   ProcedureReturn "" 
 EndProcedure
@@ -887,8 +892,7 @@ funcs("filewrite") = @my_filewrite()
 
 arrNames("a") = #True
 
-
-Debug evalExpression("cos(2-7)")
+Debug evalExpression("msg('0')")
 
 ;Debug vars("a")
 
