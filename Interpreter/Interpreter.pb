@@ -33,6 +33,7 @@ Global NewMap arrNames.i()
 Global NewMap arrsContent.s()
 
 Global NewMap execDept.i()
+Global NewMap execDeptCmd.s()
 Global NewMap execGoto.i()
 
 #DATATYPE_UNKNOWN = 0
@@ -334,7 +335,7 @@ Procedure.s prepareOperator(str.s, *type.integer)
 EndProcedure  
 
 Procedure.s evalOperator(operators.s, operand1.s, operand2.s)
-  Debug "OP:" + operators.s +" " + operand1.s + " "+ operand2.s
+  ;Debug "OP:" + operators.s +" " + operand1.s + " "+ operand2.s
   
   operand1 = prepareOperator(operand1, @type1)
   operand2 = prepareOperator(operand2, @type2)  
@@ -565,7 +566,6 @@ Procedure.s evalToken(tok.s)
     For i = 1 To Len(seperators)+1
       tok + EscapeString(prepareOperator(evalToken("#"+StringField(params, i, "#")),@dummy))+Chr(9) ; escape parameters and seperate by tab (chr(9))  ; avoid @'s with prepareOperator  ;IMPORTANT: unescape!!!
     Next  
-    Debug "TOK "+tok
     
   ElseIf FindString(#SUPPORTED_OPERATORS, Left(tok,1))
     
@@ -639,26 +639,26 @@ EndProcedure
 
 Procedure evalTrueFalse(str.s)
   tok.s = evalPrepare(str)
-;;DEBUGGING:  
-;   Debug tok
-;   Debug "======"
-;   ForEach token()
-;     Debug  MapKey(token()) + "    =   "  + token()    
-;   Next 
-;   Debug "==================="
+  ;;DEBUGGING:  
+  ;   Debug tok
+  ;   Debug "======"
+  ;   ForEach token()
+  ;     Debug  MapKey(token()) + "    =   "  + token()    
+  ;   Next 
+  ;   Debug "==================="
   
   ProcedureReturn IsTrue(evalToken(tok)) ;prepareOperator because of problem if expression consists only out of a constant string (@-char)
 EndProcedure  
 
 Procedure.s evalExpression(str.s)
   tok.s = evalPrepare(str)
-;;DEBUGGING:  
-;   Debug tok
-;   Debug "======"
-;   ForEach token()
-;     Debug  MapKey(token()) + "    =   "  + token()    
-;   Next 
-;   Debug "==================="
+  ;;DEBUGGING:  
+  ;   Debug tok
+  ;   Debug "======"
+  ;   ForEach token()
+  ;     Debug  MapKey(token()) + "    =   "  + token()    
+  ;   Next 
+  ;   Debug "==================="
   
   ProcedureReturn prepareOperator(evalToken(tok), @dummy) ;prepareOperator because of problem if expression consists only out of a constant string (@-char)
 EndProcedure  
@@ -674,13 +674,13 @@ Procedure evalAssign(str.s)
     evalError("token expected")
   EndIf
   
-;;DEBUGGING:  
-     Debug tok
-     Debug "======"
-     ForEach token()
-       Debug  MapKey(token()) + "    =   "  + token()    
-     Next 
-     Debug "===================" 
+  ;;DEBUGGING:  
+  ;     Debug tok
+  ;     Debug "======"
+  ;     ForEach token()
+  ;       Debug  MapKey(token()) + "    =   "  + token()    
+  ;     Next 
+  ;     Debug "===================" 
   
   If Left(tok,2) = "=#"
     tok = Right(tok, Len(tok)-2)
@@ -689,21 +689,21 @@ Procedure evalAssign(str.s)
     
     If Left(var,1 ) = "V"
       vars(token(var)) = prepareOperator(evalToken("#"+exp), @dummy) ;prepareOperator because of problem if expression consists only out of a constant string (@-char)
-
-   ElseIf Left(var,1 ) = "F" ;Its an array
-     ;TODO:Checks
-     arrayname.s = StringField(token(var), 1, "#")
-     If FindMapElement(arrNames(), arrayname)
-       tok.s = StringField(token(var), 2, "#")
-       If tok <> ""
-       result.s = prepareOperator(evalToken("#"+exp), @dummy)
-       param.s = prepareOperator(evalToken("#"+tok), @dummy) ;prepareOperator because of problem if expression consists only out of a constant string (@-char) 
-       
-       ;Debug "{" + arrayname +Chr(9) + param + "}  =   " + result
-       arrsContent(arrayname + Chr(9) + param) = result
-     Else
-        evalError("token expected")
-       EndIf
+      
+    ElseIf Left(var,1 ) = "F" ;Its an array
+                              ;TODO:Checks
+      arrayname.s = StringField(token(var), 1, "#")
+      If FindMapElement(arrNames(), arrayname)
+        tok.s = StringField(token(var), 2, "#")
+        If tok <> ""
+          result.s = prepareOperator(evalToken("#"+exp), @dummy)
+          param.s = prepareOperator(evalToken("#"+tok), @dummy) ;prepareOperator because of problem if expression consists only out of a constant string (@-char) 
+          
+          ;Debug "{" + arrayname +Chr(9) + param + "}  =   " + result
+          arrsContent(arrayname + Chr(9) + param) = result
+        Else
+          evalError("token expected")
+        EndIf
       Else
         evalError("'" + arrayname + "' is no declared array name") 
       EndIf  
@@ -720,25 +720,43 @@ EndProcedure
 
 
 Procedure evalLine(str.s, lineNumber)
+  str = Trim(str)
   cmd.s = StringField(str, 1, " ")
   exp.s = StringField(str, 2, " ")
   
   canExecuteDepth = execDept(Str(exec_dept))
-  If cmd = "if"
+  
+  If str = ""
+    ;empty line
+    newLineNumber = lineNumber + 1 
+    
+  ElseIf Left(str,1)= "#"
+    ;Commented lne
+    newLineNumber = lineNumber + 1 
+    
+  ElseIf cmd = "if"
     exec_dept + 1
+    execDeptCmd(Str(exec_dept)) = "if"
     If canExecuteDepth
       execDept(Str(exec_dept)) = evalTrueFalse(exp)
     Else
       execDept(Str(exec_dept)) = #False
     EndIf       
     newLineNumber = lineNumber + 1
-        
+    
   ElseIf cmd = "endif"
+    
+    If execDeptCmd(Str(exec_dept)) <> "if"
+      evalError("if expected before")
+    EndIf  
+    
     exec_dept - 1
     newLineNumber = lineNumber + 1   
     
   ElseIf cmd = "while"
-     exec_dept + 1
+    exec_dept + 1
+    execDeptCmd(Str(exec_dept)) = "while"
+    
     If canExecuteDepth
       execDept(Str(exec_dept)) = evalTrueFalse(exp)
     Else
@@ -746,21 +764,34 @@ Procedure evalLine(str.s, lineNumber)
     EndIf
     execGoto(Str(exec_dept)) = lineNumber    
     newLineNumber = lineNumber + 1      
-
+    
   ElseIf cmd = "wend"
+    
+    If execDeptCmd(Str(exec_dept)) <> "while"
+      evalError("while expected before")
+    EndIf  
+    
     If canExecuteDepth
-      
       newLineNumber = execGoto(Str(exec_dept))
       ;Debug "Goto line " + newLineNumber
     Else
       newLineNumber = lineNumber + 1 
     EndIf  
     exec_dept - 1
+  ElseIf cmd = "end"
+    If canExecuteDepth    
+      If exp <> ""
+        evalError("garbage after end")
+      EndIf
+      newLineNumber = -1
+    Else
+    newLineNumber = lineNumber + 1      
+    EndIf
     
   ElseIf cmd = "dim"
     If canExecuteDepth
       If isValidVariable(exp)
-        arrNames(exp) = #True;TODO: Check if this is a name
+        arrNames(exp) = #True
       Else
         evalError("'" + exp +  "' is not a valid variable name")
       EndIf  
@@ -786,10 +817,17 @@ Procedure.s my_sin(params)
 EndProcedure  
 
 Procedure.s my_msg(params)
-  MessageRequester("", UnescapeString(StringField(PeekS(params),1,Chr(9))))
+  MessageRequester("TEST", UnescapeString(StringField(PeekS(params),1,Chr(9))))
   ProcedureReturn "" 
 EndProcedure
 
+Procedure.s my_question(params)
+  If MessageRequester("TEST", UnescapeString(StringField(PeekS(params),1,Chr(9))),  #PB_MessageRequester_YesNo) =  #PB_MessageRequester_Yes    
+    ProcedureReturn "1" 
+  Else
+    ProcedureReturn "0"     
+  EndIf  
+EndProcedure
 
 vars("PI") = "3.1415926535897931"
 vars("E") = "2.7182818284590451"
@@ -800,37 +838,40 @@ vars("c5")="test"
 funcs("cos") = @my_cos()
 funcs("sin") = @my_sin()
 funcs("msg") = @my_msg()
+funcs("question") = @my_question()
 
-
-
-arrNames("a") = #True
-
+;arrNames("a") = #True
 ;evalExpression("cos(4,7)")
-evalAssign("a()=7.5")
+;evalAssign("a()=7.5")
 ;evalAssign("msg(a())+msg('hi')")
+;evalAssign("msg('a'+'b')|msg('hi','too')")
 
-evalAssign("msg('a'+'b')|msg('hi','too')")
-
-If 1=2
-Dim lines.s(10)
-lines(0) = "while A<10"
-lines(1) = "A=A+1"
-lines(2) = "if A=8"
-lines(3) = "X=msg(A)"
-lines(4) = "endif"
-lines(5) = "wend"
-
+Dim lines.s(100)
+lines(0) = "dim ficken"
+lines(1) = "ficken(0) = 1"
+lines(2) = "ficken(1) = 2"
+lines(3) = "while A<10"
+lines(4) = "A=A+1"
+lines(5) = "if A=8"
+lines(6) = "msg(A)"
+lines(7) = "if question('beenden?')"
+lines(8) = "end"
+lines(9) = "msg('not show this')"
+lines(10) = "endif"
+lines(11) = "endif"
+lines(12) = "wend"
+lines(13) = "end"
 
 execDept("0") = #True
 Repeat
-  currentline = evalLine(lines(currentline), currentline)
 
-  ;Debug "line " + Str(currentline)
-Until currentline > 5
-Debug vars("A")
+  currentline = evalLine(lines(currentline), currentline)
+  Debug vars("A")
+  
+  Debug "line " + Str(currentline)
+Until currentline > 12 Or currentline=-1
+
 ; Debug tokenize(0)
 ; 
 
 
-
-EndIf
