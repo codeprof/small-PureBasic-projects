@@ -13,9 +13,9 @@ Global inString
 Global inComment
 Global layer_index = 0
 Global NewMap token.s()
-Global NewMap tokensign.s()
 Global NewMap operators.s()
 Global NewMap vars.s()
+Global NewMap funcs.i()
 
 Procedure isValidVariable(str.s)
   If str = ""
@@ -42,16 +42,13 @@ Procedure isValidNumber(str.s, allowSign)
   
   For i = 1 To Len(str)
     ch.s = Mid(str, i, 1)
-    If allowSign And (Not afterSign) And (ch = "-")
+    If allowSign And (i=1) And (ch = "-")
     
     ElseIf ch = "." And dot = #False
       dot = #True
-      afterSign = #True
     Else
       If Not FindString("0123456789", ch)       
         ProcedureReturn #False
-      Else
-        afterSign = #True
      EndIf      
     EndIf      
   Next
@@ -142,7 +139,6 @@ Procedure.s ApplyOperator(str.s, op.s)
     layer_index + 1
     key.s = Str(layer_index) 
     token(key) = op.s + "#" + StringField(operands, i, "#") + "#" + StringField(operands, i+1, "#")
-    tokensign(key) = "" 
     
     ;Debug "ADD #" +key + " = " +op.s + "#" + StringField(operands, i, "#") + "#" + StringField(operands, i+1, "#")
     
@@ -173,9 +169,7 @@ Procedure.s ApplyOperators(str.s)
   str = ApplyOperator(str.s, "*") 
   str = ApplyOperator(str.s, "-") 
   str = ApplyOperator(str.s, "+")  
-  str = ApplyOperator(str.s, "=")  
-  str = ApplyOperator(str.s, "&")  
-  str = ApplyOperator(str.s, "|")    
+  str = ApplyOperator(str.s, "=")     
   ProcedureReturn str
 EndProcedure  
   
@@ -190,7 +184,7 @@ Procedure.s splitOperators(str.s)
   ops.s = ""
   For i=1 To Len(str)
     ch.s = Mid(str, i, 1)
-    If FindString(",|&=-+*/", ch)
+    If FindString(",=-+*/", ch)
       tmp = Trim(tmp)
       If tmp.s <> "" 
         res + analyzeOperand(tmp)       
@@ -259,42 +253,51 @@ Procedure.s tokenize(layer)
   EndIf  
 EndProcedure
 
-
-Procedure.d ToNum(str.s)
+Procedure.s simplifySigns(str.s)
   numsigns = CountString(str, "-")
-  If (numsigns & 1)
-    res.d = -ValD(Right(str, Len(str) - numsigns))
+  If (numsigns & 1)  
+    ProcedureReturn Right(str, Len(str) - (numsigns-1))
   Else
-    res.d = ValD(Right(str, Len(str) - numsigns))    
-  EndIf
-  ProcedureReturn res.d
-EndProcedure
-    
+    ProcedureReturn Right(str, Len(str) - numsigns)     
+  EndIf  
+EndProcedure  
+
 Procedure.s evalOperator(operators.s, operand1.s, operand2.s)
-  
-Debug "OP:" + operators.s +" " + operand1.s + " "+ operand2.s
+  Debug "OP:" + operators.s +" " + operand1.s + " "+ operand2.s
+  operand1 = simplifySigns(operand1)
+  operand2 = simplifySigns(operand2)  
 Select operators.s
-  Case "-"  
     
+    
+  Case "="
+    If operand1 = operand2
+      ProcedureReturn "1"
+    Else
+      ProcedureReturn "0"
+    EndIf  
+  Case "-"      
     If isValidNumber(operand1,#True) And operand2 = ""
-      ProcedureReturn "-"+operand1      
+      
+      Debug "U:" + StrD(-ValD(operand1)) 
+      Debug ValD(operand1)
+      ProcedureReturn StrD(-ValD(operand1))      
       
     ElseIf isValidNumber(operand1,#True) And isValidNumber(operand2,#True)
-      ProcedureReturn StrD(ToNum(operand1)-ToNum(operand2))
+      ProcedureReturn StrD(ValD(operand1)-ValD(operand2))
     Else
       ProcedureReturn ""    
     EndIf        
     
   Case "+"
     If isValidNumber(operand1,#True) And isValidNumber(operand2,#True)
-      ProcedureReturn StrD(ToNum(operand1)+ToNum(operand2))
+      ProcedureReturn StrD(ValD(operand1)+ValD(operand2))
     Else
       ProcedureReturn operand1+operand2    
     EndIf      
     
   Case "*"
     If isValidNumber(operand1,#True) And isValidNumber(operand2,#True)
-      ProcedureReturn StrD(ToNum(operand1)*ToNum(operand2))
+      ProcedureReturn StrD(ValD(operand1)*ValD(operand2))
     ElseIf isValidNumber(operand1,#False)
       ProcedureReturn ReplaceString(Space(Val(operand1))," ", operand2)          
     ElseIf isValidNumber(operand2,#False)
@@ -305,7 +308,7 @@ Select operators.s
     
   Case "/"
     If isValidNumber(operand1,#True) And isValidNumber(operand2,#True)
-      ProcedureReturn StrD(ToNum(operand1)/ToNum(operand2))
+      ProcedureReturn StrD(ValD(operand1)/ValD(operand2))
     Else
       ProcedureReturn ""   
     EndIf    
@@ -313,6 +316,9 @@ Select operators.s
     ProcedureReturn ""
   EndSelect       
 EndProcedure  
+
+
+ 
 
 Procedure.s evalToken(tok.s)
   While Left(tok,1) = "#"
@@ -322,8 +328,17 @@ Procedure.s evalToken(tok.s)
     ;Debug "RESOLVED:" + tok
   Wend
   
-  If FindString(",|&=-+*/", Left(tok,1))
+  If Left(tok,1) = ","
+    seperators.s = StringField(tok, 1, "#")
+    params.s = Right(tok, Len(tok) - (Len(seperators.s) + 1)) ;also remove the first "#", so we can use the remeaing "#"'s as seperator easyly      
     
+    tok = ""
+    For i = 1 To Len(seperators)+1
+      tok + EscapeString(evalToken("#"+StringField(params, i, "#")))+Chr(9) ; ecape parameters and seperate by tab (chr(9))
+    Next  
+    
+  ElseIf FindString("=-+*/", Left(tok,1))
+     
     operators.s = StringField(tok, 1, "#")
     operands.s = Right(tok, Len(tok) - (Len(operators.s) + 1)) ;also remove the first "#", so we can use the remeaing "#"'s as seperator easyly  
     
@@ -337,10 +352,19 @@ Procedure.s evalToken(tok.s)
       tok = evalOperator(operators, evalToken("#"+op1), evalToken("#"+op2))     
     EndIf  
     ;Debug "OPERATOR EVAL:" +btok + "          "+ tok
+    
   ElseIf Left(last_tok,1) = "V"  
     tok = vars(tok)    
   ElseIf Left(last_tok,1) = "F"  
-    Debug "TODO: CALL FUNCTION"  
+    function.s = StringField(tok, 1, "#")
+    params.s = evalToken("#" + StringField(tok, 2, "#"))
+    Debug "FUNCTION:" + function
+    Debug "PARAMS:" + params
+    If FindMapElement(funcs(), function)
+      tok = PeekS(CallFunctionFast(funcs(function), @params))
+    Else
+      Debug "ERROR: function '" + function + "' is not implemented"
+    EndIf  
   EndIf  
   
   Debug "RESULT:" + tok
@@ -355,18 +379,35 @@ Procedure.s eval(str.s)
     Debug tok
     Debug "======"
     ForEach token()
-      Debug  MapKey(token()) + "    =   " + tokensign(MapKey(token())) + "      "  + token()    
+      Debug  MapKey(token()) + "    =   "  + token()    
     Next 
    Debug "==================="
   
   ProcedureReturn evalToken(tok)
 EndProcedure  
 
+Procedure.s my_cos(params)
+  ProcedureReturn StrD(Cos(ValD(StringField(PeekS(params),1,Chr(9)))))
+EndProcedure  
+
+Procedure.s my_sin(params)
+  ProcedureReturn StrD(Sin(ValD(StringField(PeekS(params),1,Chr(9)))))
+EndProcedure  
+
+Procedure.s my_msg(params)
+  MessageRequester("",  StringField(PeekS(params),1,Chr(9)))
+  ProcedureReturn ""
+EndProcedure
+
+
 vars("a")= "1000.5"
 vars("b")= "5"
 vars("c5")="test"
+funcs("cos") = @my_cos()
+funcs("sin") = @my_sin()
+funcs("msg") = @my_msg()
 
-Debug eval("-(-6.4)+-(b*-9)")
+Debug eval("'AB'='A'+'B'")
 
 
 
