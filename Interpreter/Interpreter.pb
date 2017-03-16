@@ -321,6 +321,8 @@ Procedure.s simplifySigns(str.s)
 EndProcedure  
 
 Procedure.s prepareOperator(str.s, *type.integer)
+  
+  Debug "P:" + str
   *type\i =  #DATATYPE_UNKNOWN
   If Left(str,1) = "@"
     *type\i = #DATATYPE_STRING
@@ -335,16 +337,17 @@ Procedure.s prepareOperator(str.s, *type.integer)
 EndProcedure  
 
 Procedure.s evalOperator(operators.s, operand1.s, operand2.s)
-  ;Debug "OP:" + operators.s +" " + operand1.s + " "+ operand2.s
+  Debug "OP:" + operators.s +" " + operand1.s + " "+ operand2.s
   
   operand1 = prepareOperator(operand1, @type1)
   operand2 = prepareOperator(operand2, @type2)  
+  Debug "OP:" + operators.s +" " + operand1.s + " "+ operand2.s
   
   If type1 = #DATATYPE_UNKNOWN
-    evalError("Invalid type")
+    evalError("Invalid type9")
   EndIf  
   If type2 = #DATATYPE_UNKNOWN
-    If (operators = "-") And operand2 = ""
+    If (operators = "-") And (operand2 = "") And (type1 = #DATATYPE_NUMBER)
       ;Just the sign operator, so everything ok!
     Else  
       evalError("Invalid type")
@@ -500,9 +503,9 @@ Procedure.s evalOperator(operators.s, operand1.s, operand2.s)
       If type1 = #DATATYPE_NUMBER And type2 = #DATATYPE_NUMBER
         ProcedureReturn StrD(Pow(ValD(operand1),ValD(operand2)))
       ElseIf type2 = #DATATYPE_NUMBER
-        ProcedureReturn ReplaceString(Space(Val(operand2))," ", operand1)          
+        ProcedureReturn "@"+ReplaceString(Space(Val(operand2))," ", operand1)          
       Else
-        ProcedureReturn ""   
+        ProcedureReturn "@"   
       EndIf      
       
     Case "-"      
@@ -512,35 +515,35 @@ Procedure.s evalOperator(operators.s, operand1.s, operand2.s)
       ElseIf type1 = #DATATYPE_NUMBER And type2 = #DATATYPE_NUMBER
         ProcedureReturn StrD(ValD(operand1)-ValD(operand2))
       Else
-        ProcedureReturn ""    
+        ProcedureReturn "@"    
       EndIf        
       
     Case "+"
       If type1 = #DATATYPE_NUMBER And type2 = #DATATYPE_NUMBER
         ProcedureReturn StrD(ValD(operand1)+ValD(operand2))
       Else
-        ProcedureReturn operand1+operand2    
+        ProcedureReturn "@"+operand1+operand2    
       EndIf      
       
     Case "*"
       If type1 = #DATATYPE_NUMBER And type2 = #DATATYPE_NUMBER
         ProcedureReturn StrD(ValD(operand1)*ValD(operand2))
       ElseIf type1 = #DATATYPE_NUMBER
-        ProcedureReturn ReplaceString(Space(Val(operand1))," ", operand2)          
+        ProcedureReturn "@"+ReplaceString(Space(Val(operand1))," ", operand2)          
       ElseIf type2 = #DATATYPE_NUMBER
-        ProcedureReturn ReplaceString(Space(Val(operand2))," ", operand1)
+        ProcedureReturn "@"+ReplaceString(Space(Val(operand2))," ", operand1)
       Else
-        ProcedureReturn ""   
+        ProcedureReturn "@"   
       EndIf  
       
     Case "/"
       If type1 = #DATATYPE_NUMBER And type2 = #DATATYPE_NUMBER
         ProcedureReturn StrD(ValD(operand1)/ValD(operand2))     
       Else
-        ProcedureReturn ReplaceString(operand1, operand2, "")   ;without operator
+        ProcedureReturn "@"+ReplaceString(operand1, operand2, "")   ;without operator
       EndIf    
     Default
-      ProcedureReturn ""
+      ProcedureReturn "@"
   EndSelect       
 EndProcedure  
 
@@ -566,7 +569,7 @@ Procedure.s evalToken(tok.s)
     For i = 1 To Len(seperators)+1
       tok + EscapeString(prepareOperator(evalToken("#"+StringField(params, i, "#")),@type))+Chr(9) ; escape parameters and seperate by tab (chr(9))  ; avoid @'s with prepareOperator  ;IMPORTANT: unescape!!!
       If type = #DATATYPE_UNKNOWN
-        evalError("invalid type")
+        evalError("invalid type8")
       EndIf  
     Next  
     
@@ -599,15 +602,22 @@ Procedure.s evalToken(tok.s)
     ;Debug "PARAMS:" + params
     
     If FindMapElement(arrNames(), function)
-      tok = arrsContent(function + Chr(9) + params)
+      If FindMapElement(arrsContent(), function + Chr(9) + params)
+        tok = arrsContent(function + Chr(9) + params) 
+      Else
+        tok = "0"
+      EndIf  
+      
     ElseIf FindMapElement(funcs(), function)
-      ;Special case of one parameter. There is no ","-Operator and so prepareOperator get not called
-      If Not FindString(params, Chr(9)) 
+      ;Special case of zero/one parameter. There is no ","-Operator and so prepareOperator get not called
+      
+      If params = ""
+         ;ok to have no parameters
+      ElseIf Not FindString(params, Chr(9)) 
         params = EscapeString(prepareOperator(params, @type))     
         If type = #DATATYPE_UNKNOWN
-          evalError("invalid type")
+          evalError("invalid type7")
         EndIf 
-      
       EndIf
       
       tok = PeekS(CallFunctionFast(funcs(function), @params))
@@ -669,7 +679,7 @@ Procedure.s evalExpression(str.s)
   
   res.s = prepareOperator(evalToken(tok), @type) ;prepareOperator because of problem if expression consists only out of a constant string (@-char)
   If type = #DATATYPE_UNKNOWN
-    evalError("invalid type")
+    evalError("invalid type5")
   EndIf 
   ProcedureReturn res
 EndProcedure  
@@ -701,7 +711,7 @@ Procedure evalAssign(str.s)
     If Left(var,1 ) = "V"
       vars(token(var)) = prepareOperator(evalToken("#"+exp), @type) ;prepareOperator because of problem if expression consists only out of a constant string (@-char)
       If type = #DATATYPE_UNKNOWN
-        evalError("invalid type")
+        evalError("invalid type4")
       EndIf 
       ProcedureReturn res      
       
@@ -711,16 +721,8 @@ Procedure evalAssign(str.s)
       If FindMapElement(arrNames(), arrayname)
         tok.s = StringField(token(var), 2, "#")
         If tok <> ""
-          result.s = prepareOperator(evalToken("#"+exp), @type)
-          If type = #DATATYPE_UNKNOWN
-            evalError("invalid type")
-          EndIf 
-          ProcedureReturn res          
-          param.s = prepareOperator(evalToken("#"+tok), @type) ;prepareOperator because of problem if expression consists only out of a constant string (@-char) 
-          If type = #DATATYPE_UNKNOWN
-            evalError("invalid type")
-          EndIf 
-          ProcedureReturn res          
+          result.s = evalToken("#"+exp) ;no prepareOperator here! (Strings must be saved as @...)         
+          param.s = evalToken("#"+tok)  ;no prepareOperator here! already done in evalToken      
                   
           ;Debug "{" + arrayname +Chr(9) + param + "}  =   " + result
           arrsContent(arrayname + Chr(9) + param) = result
@@ -736,9 +738,9 @@ Procedure evalAssign(str.s)
     
   Else
     ;evalError("assignment or function call expected")
-    prepareOperator(evalToken(tokorg),@type) ;ignore result (tokorg, because function should also be executed! BUG: msg('1')+msg('2') is possible!
+    prepareOperator(evalToken(tokorg),@type) ;ignore result (tokorg, because function should also be executed! BUG: msg('1')+msg('2') is possible!    
     If type = #DATATYPE_UNKNOWN
-      evalError("invalid type")
+      evalError("invalid type1")
     EndIf     
   EndIf  
 EndProcedure
@@ -884,9 +886,11 @@ funcs("question") = @my_question()
 funcs("filewrite") = @my_filewrite()
 
 arrNames("a") = #True
-evalAssign("msg('o')")
 
-Debug vars("a")
+
+Debug evalExpression("cos(2-7)")
+
+;Debug vars("a")
 
 End
 
