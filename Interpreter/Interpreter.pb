@@ -715,7 +715,7 @@ Procedure evalAssign(str.s)
     If Left(var,1 ) = "V"
       vars(token(var)) = prepareOperator(evalToken("#"+exp), @type) ;prepareOperator because of problem if expression consists only out of a constant string (@-char)
       If type = #DATATYPE_UNKNOWN
-        evalError("invalid type4")
+        evalError("invalid type")
       EndIf 
       ProcedureReturn res      
       
@@ -744,7 +744,7 @@ Procedure evalAssign(str.s)
     ;evalError("assignment or function call expected")
     prepareOperator(evalToken(tokorg),@type) ;ignore result (tokorg, because function should also be executed! BUG: msg('1')+msg('2') is possible!    
     If type = #DATATYPE_UNKNOWN
-      evalError("invalid type1")
+      evalError("invalid type")
     EndIf     
   EndIf  
 EndProcedure
@@ -763,7 +763,7 @@ Procedure evalLine(str.s, lineNumber)
     newLineNumber = lineNumber + 1 
     
   ElseIf Left(str,1)= "#"
-    ;Commented lne
+    ;Commented line
     newLineNumber = lineNumber + 1 
     
   ElseIf cmd = "if"
@@ -892,11 +892,8 @@ funcs("filewrite") = @my_filewrite()
 
 arrNames("a") = #True
 
-Debug evalExpression("msg('0')")
 
-;Debug vars("a")
 
-End
 
 ;arrNames("a") = #True
 ;evalExpression("cos(4,7)")
@@ -910,9 +907,9 @@ lines(1) = "f(0) = 1"
 lines(2) = "f(1) = 2"
 lines(3) = "while A<10"
 lines(4) = "A=A+1"
-lines(5) = "if A=8"
-lines(6) = "msg(A)"
-lines(7) = "if question('beenden?')"
+lines(5) = "if A>6"
+lines(6) = ""
+lines(7) = "if question(A,'beenden?')"
 lines(8) = "filewrite('F:\test.txt', 'HELLO WORLD')"
 lines(9) = "end"
 lines(10) = "msg('not show this')"
