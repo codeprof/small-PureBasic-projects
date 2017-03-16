@@ -4,14 +4,18 @@
 ;#V: possible Variable
 ;#N: Number
 ;#F: Function/Array
+;#S: String constant
 Global pos = 1
-Global line.s = "f1(f2())";".4+4*(6+(i)+(i6)+(-k)+(kg*(p+q-hooo))+6)+'hey(y+o)h'";4+(66*(21+55*A+B-C(a,b,c)))*9"
+
+
+Global line.s = "2*(5*4)+2";"1*(8*A)=2+(4*E)" ; ".4+4*(6+(i)+(i6)+(-k)+(kg*(p+q-hooo))+6)+'hey(y+o)h'";4+(66*(21+55*A+B-C(a,b,c)))*9"
 Global inString
 Global inComment
 Global layer_index = 0
 Global NewMap token.s()
 Global NewMap tokensign.s()
 Global NewMap operators.s()
+Global NewMap vars.s()
 
 Procedure isValidVariable(str.s)
   If str = ""
@@ -30,18 +34,24 @@ Procedure isValidVariable(str.s)
   ProcedureReturn #True
 EndProcedure
 
-Procedure isValidNumber(str.s)
+Procedure isValidNumber(str.s, allowSign)
+  afterSign = #False
   If str = ""
     ProcedureReturn #False
   EndIf  
   
   For i = 1 To Len(str)
     ch.s = Mid(str, i, 1)
-    If ch = "." And dot = #False
+    If allowSign And (Not afterSign) And (ch = "-")
+    
+    ElseIf ch = "." And dot = #False
       dot = #True
+      afterSign = #True
     Else
       If Not FindString("0123456789", ch)       
-      ProcedureReturn #False
+        ProcedureReturn #False
+      Else
+        afterSign = #True
      EndIf      
     EndIf      
   Next
@@ -87,7 +97,7 @@ Procedure.s analyzeOperand(str.s)
     key.s = Str(layer_index)   
     If Left(str, 1) = "#"     
       
-    ElseIf isValidNumber(str)
+    ElseIf isValidNumber(str, #False)
       key.s = "N" + key
       
     ElseIf isValidVariable(str)
@@ -104,7 +114,15 @@ Procedure.s analyzeOperand(str.s)
       EndIf  
     EndIf
     token(key) = str
-    tokensign(key) = sign   
+    ;tokensign(key) = sign   
+    
+    If sign <> ""
+      layer_index + 1
+      key2.s = Str(layer_index)
+      token(key2) = sign + "#"+ key
+      key = key2
+    EndIf
+    
     ProcedureReturn "#" + key   
     
   EndIf    
@@ -155,6 +173,9 @@ Procedure.s ApplyOperators(str.s)
   str = ApplyOperator(str.s, "*") 
   str = ApplyOperator(str.s, "-") 
   str = ApplyOperator(str.s, "+")  
+  str = ApplyOperator(str.s, "=")  
+  str = ApplyOperator(str.s, "&")  
+  str = ApplyOperator(str.s, "|")    
   ProcedureReturn str
 EndProcedure  
   
@@ -169,7 +190,7 @@ Procedure.s splitOperators(str.s)
   ops.s = ""
   For i=1 To Len(str)
     ch.s = Mid(str, i, 1)
-    If FindString(",+-*/", ch)
+    If FindString(",|&=-+*/", ch)
       tmp = Trim(tmp)
       If tmp.s <> "" 
         res + analyzeOperand(tmp)       
@@ -239,12 +260,118 @@ Procedure.s tokenize(layer)
 EndProcedure
 
 
-Debug tokenize(0)
+Procedure.d ToNum(str.s)
+  numsigns = CountString(str, "-")
+  If (numsigns & 1)
+    res.d = -ValD(Right(str, Len(str) - numsigns))
+  Else
+    res.d = ValD(Right(str, Len(str) - numsigns))    
+  EndIf
+  ProcedureReturn res.d
+EndProcedure
+    
+Procedure.s evalOperator(operators.s, operand1.s, operand2.s)
+  
+Debug "OP:" + operators.s +" " + operand1.s + " "+ operand2.s
+Select operators.s
+  Case "-"  
+    
+    If isValidNumber(operand1,#True) And operand2 = ""
+      ProcedureReturn "-"+operand1      
+      
+    ElseIf isValidNumber(operand1,#True) And isValidNumber(operand2,#True)
+      ProcedureReturn StrD(ToNum(operand1)-ToNum(operand2))
+    Else
+      ProcedureReturn ""    
+    EndIf        
+    
+  Case "+"
+    If isValidNumber(operand1,#True) And isValidNumber(operand2,#True)
+      ProcedureReturn StrD(ToNum(operand1)+ToNum(operand2))
+    Else
+      ProcedureReturn operand1+operand2    
+    EndIf      
+    
+  Case "*"
+    If isValidNumber(operand1,#True) And isValidNumber(operand2,#True)
+      ProcedureReturn StrD(ToNum(operand1)*ToNum(operand2))
+    ElseIf isValidNumber(operand1,#False)
+      ProcedureReturn ReplaceString(Space(Val(operand1))," ", operand2)          
+    ElseIf isValidNumber(operand2,#False)
+      ProcedureReturn ReplaceString(Space(Val(operand2))," ", operand1)
+    Else
+      ProcedureReturn ""   
+    EndIf  
+    
+  Case "/"
+    If isValidNumber(operand1,#True) And isValidNumber(operand2,#True)
+      ProcedureReturn StrD(ToNum(operand1)/ToNum(operand2))
+    Else
+      ProcedureReturn ""   
+    EndIf    
+  Default
+    ProcedureReturn ""
+  EndSelect       
+EndProcedure  
 
-Debug "======"
-  ForEach token()
-    Debug  MapKey(token()) + "    =   " + tokensign(MapKey(token())) + "      "  + token()    
-  Next 
+Procedure.s evalToken(tok.s)
+  While Left(tok,1) = "#"
+    ;Debug "RESOLV:" + tok      
+    last_tok.s = Right(tok, Len(tok)-1)  
+    tok = token(last_tok.s)
+    ;Debug "RESOLVED:" + tok
+  Wend
+  
+  If FindString(",|&=-+*/", Left(tok,1))
+    
+    operators.s = StringField(tok, 1, "#")
+    operands.s = Right(tok, Len(tok) - (Len(operators.s) + 1)) ;also remove the first "#", so we can use the remeaing "#"'s as seperator easyly  
+    
+    op1.s = StringField(operands, 1, "#")
+    op2.s = StringField(operands, 2, "#")    
+    
+    btok.s = tok
+    If op2 = "" ;its a sign    
+      tok = evalOperator(operators, evalToken("#"+op1), "")
+    Else
+      tok = evalOperator(operators, evalToken("#"+op1), evalToken("#"+op2))     
+    EndIf  
+    ;Debug "OPERATOR EVAL:" +btok + "          "+ tok
+  ElseIf Left(last_tok,1) = "V"  
+    tok = vars(tok)    
+  ElseIf Left(last_tok,1) = "F"  
+    Debug "TODO: CALL FUNCTION"  
+  EndIf  
+  
+  Debug "RESULT:" + tok
+  ProcedureReturn tok   
+EndProcedure
+
+
+Procedure.s eval(str.s)
+  line = str
+  tok.s = tokenize(0)
+  
+    Debug tok
+    Debug "======"
+    ForEach token()
+      Debug  MapKey(token()) + "    =   " + tokensign(MapKey(token())) + "      "  + token()    
+    Next 
+   Debug "==================="
+  
+  ProcedureReturn evalToken(tok)
+EndProcedure  
+
+vars("a")= "1000.5"
+vars("b")= "5"
+vars("c5")="test"
+
+Debug eval("-(-6.4)+-(b*-9)")
+
+
+
+; Debug tokenize(0)
+; 
 
 
 
