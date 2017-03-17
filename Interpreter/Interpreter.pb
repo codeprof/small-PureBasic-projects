@@ -323,8 +323,6 @@ Procedure.s simplifySigns(str.s)
 EndProcedure  
 
 Procedure.s prepareOperator(str.s, *type.integer)
-  
-  Debug "P:" + str
   *type\i =  #DATATYPE_UNKNOWN
   If Left(str,1) = "@"
     *type\i = #DATATYPE_STRING
@@ -339,12 +337,11 @@ Procedure.s prepareOperator(str.s, *type.integer)
 EndProcedure  
 
 Procedure.s evalOperator(operators.s, operand1.s, operand2.s)
-  Debug "OP:" + operators.s +" " + operand1.s + " "+ operand2.s
+  ;Debug "OP:" + operators.s +" " + operand1.s + " "+ operand2.s
   
   operand1 = prepareOperator(operand1, @type1)
   operand2 = prepareOperator(operand2, @type2)  
-  Debug "OP:" + operators.s +" " + operand1.s + " "+ operand2.s
-  
+
   If type1 = #DATATYPE_UNKNOWN
     evalError("Invalid type")
   EndIf  
@@ -549,9 +546,6 @@ Procedure.s evalOperator(operators.s, operand1.s, operand2.s)
   EndSelect       
 EndProcedure  
 
-
-
-
 Procedure.s evalToken(tok.s)
   While Left(tok,1) = "#"
     ;Debug "RESOLVE:" + tok      
@@ -636,15 +630,6 @@ Procedure.s evalToken(tok.s)
   ProcedureReturn tok   
 EndProcedure
 
-
-Procedure IsTrue(str.s)
-  If str <> "" And str <> "0"
-    ProcedureReturn #True  
-  Else
-    ProcedureReturn #False
-  EndIf  
-EndProcedure  
-
 Procedure.s evalPrepare(str.s)
   ClearMap(token())
   ClearMap(operators())   
@@ -655,20 +640,6 @@ Procedure.s evalPrepare(str.s)
   line = str
   ProcedureReturn tokenize(0)  
 EndProcedure
-
-
-Procedure evalTrueFalse(str.s)
-  tok.s = evalPrepare(str)
-  ;;DEBUGGING:  
-  ;   Debug tok
-  ;   Debug "======"
-  ;   ForEach token()
-  ;     Debug  MapKey(token()) + "    =   "  + token()    
-  ;   Next 
-  ;   Debug "==================="
-  
-  ProcedureReturn IsTrue(evalToken(tok)) ;prepareOperator because of problem if expression consists only out of a constant string (@-char)
-EndProcedure  
 
 Procedure.s evalExpression(str.s)
   If str = ""
@@ -688,6 +659,28 @@ Procedure.s evalExpression(str.s)
     evalError("invalid type")
   EndIf 
   ProcedureReturn res
+EndProcedure  
+
+
+Procedure IsTrue(str.s)
+  If str <> "" And str <> "0"
+    ProcedureReturn #True  
+  Else
+    ProcedureReturn #False
+  EndIf  
+EndProcedure  
+
+Procedure evalTrueFalse(str.s)
+  tok.s = evalPrepare(str)
+  ;;DEBUGGING:  
+  ;   Debug tok
+  ;   Debug "======"
+  ;   ForEach token()
+  ;     Debug  MapKey(token()) + "    =   "  + token()    
+  ;   Next 
+  ;   Debug "==================="
+  
+  ProcedureReturn IsTrue(evalToken(tok)) ;prepareOperator because of problem if expression consists only out of a constant string (@-char)
 EndProcedure  
 
 Procedure evalAssign(str.s)
@@ -936,8 +929,8 @@ funcs("filewrite") = @my_filewrite()
 
 arrNames("a") = #True
 
-
-
+;evalExpression("-(-1+(88-22/7)*(4+-(-77.4*(2+2)))/3)*(-8)")
+;End
 
 ;arrNames("a") = #True
 
