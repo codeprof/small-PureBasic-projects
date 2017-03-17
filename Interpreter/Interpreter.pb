@@ -22,7 +22,7 @@ Global line.s
 Global inString
 Global inComment
 Global layer_index = 0
-
+Global syntaxcheck = #True
 
 Global exec_dept = 0
 Global NewMap token.s()
@@ -42,8 +42,10 @@ Global NewMap execGoto.i()
 
 #SUPPORTED_OPERATORS = ",~!;|&<>=-+*/^"
 Procedure evalError(msg.s)
-  Debug "ERROR:" + msg
-  End
+  If syntaxcheck
+    Debug "ERROR:" + msg
+    End
+  EndIf
 EndProcedure  
 
 Procedure isValidVariable(str.s)
@@ -754,7 +756,7 @@ EndProcedure
 Procedure evalLine(str.s, lineNumber)
   str = Trim(str)
   cmd.s = StringField(str, 1, " ")
-  exp.s = StringField(str, 2, " ")
+  exp.s = Right(str,Len(str)-(Len(cmd)+1))
   
   canExecuteDepth = execDept(Str(exec_dept))
   
@@ -776,10 +778,33 @@ Procedure evalLine(str.s, lineNumber)
     EndIf       
     newLineNumber = lineNumber + 1
     
+  ElseIf cmd = "else"
+     If execDeptCmd(Str(exec_dept)) <> "if"
+      evalError("if expected before")
+    EndIf  
+    If exp <> ""
+       evalError("garbage after else")
+     EndIf       
+    
+    If  execDept(Str(exec_dept-1))
+      If canExecuteDepth
+        execDept(Str(exec_dept)) = #False
+      Else
+        execDept(Str(exec_dept)) = #True
+      EndIf          
+    EndIf  
+    
+    execDeptCmd(Str(exec_dept)) = "else"
+    newLineNumber = lineNumber + 1    
+    
   ElseIf cmd = "endif"
     
-    If execDeptCmd(Str(exec_dept)) <> "if"
-      evalError("if expected before")
+    If exp <> ""
+       evalError("garbage after endif")
+     EndIf   
+     
+    If execDeptCmd(Str(exec_dept)) <> "if" And execDeptCmd(Str(exec_dept)) <> "else"
+      evalError("if/else expected before")
     EndIf  
     
     exec_dept - 1
@@ -802,6 +827,9 @@ Procedure evalLine(str.s, lineNumber)
     If execDeptCmd(Str(exec_dept)) <> "while"
       evalError("while expected before")
     EndIf  
+    If exp <> ""
+       evalError("garbage after wend")
+    EndIf    
     
     If canExecuteDepth
       newLineNumber = execGoto(Str(exec_dept))
@@ -819,6 +847,23 @@ Procedure evalLine(str.s, lineNumber)
     Else
     newLineNumber = lineNumber + 1      
     EndIf
+    
+  ElseIf cmd = "syntaxoff"
+    syntaxcheck = #False
+    newLineNumber = lineNumber + 1
+    
+  ElseIf cmd = "syntaxon"
+    syntaxcheck = #True
+    If exp <> ""
+      evalError("garbage after syntaxon")
+    EndIf   
+    newLineNumber = lineNumber + 1
+    
+  ElseIf cmd = "halt"
+    If exp <> ""
+      evalError("garbage after halt")
+    EndIf   
+    newLineNumber = lineNumber ;do not increase newLineNumber here  
     
   ElseIf cmd = "dim"
     If canExecuteDepth
@@ -851,7 +896,6 @@ EndProcedure
 Procedure.s my_msg(params)
   title.s = UnescapeString(StringField(PeekS(params),1,Chr(9)))
   text.s = UnescapeString(StringField(PeekS(params),2,Chr(9))) 
-  Debug "T:" + title
   MessageRequester(title.s, text.s)
   ProcedureReturn "" 
 EndProcedure
@@ -896,7 +940,7 @@ arrNames("a") = #True
 
 
 ;arrNames("a") = #True
-;evalExpression("cos(4,7)")
+
 ;evalAssign("a()=7.5")
 ;evalAssign("msg(a())+msg('hi')")
 ;evalAssign("msg('a'+'b')|msg('hi','too')")
@@ -908,21 +952,22 @@ lines(2) = "f(1) = 2"
 lines(3) = "while A<10"
 lines(4) = "A=A+1"
 lines(5) = "if A>6"
-lines(6) = ""
+lines(6) = "else"
 lines(7) = "if question(A,'beenden?')"
 lines(8) = "filewrite('F:\test.txt', 'HELLO WORLD')"
-lines(9) = "end"
-lines(10) = "msg('not show this')"
-lines(11) = "endif"
+lines(9) = ""
+lines(10) = "else"
+lines(11) = "msg('foo')"
 lines(12) = "endif"
-lines(13) = "wend"
-lines(14) = "end"
+lines(13) = "endif"
+lines(14) = "wend"
+lines(15) = "end"
 
 execDept("0") = #True
 Repeat
 
   currentline = evalLine(lines(currentline), currentline)
-  ;Debug vars("A")
+  Debug vars("A")
   
   ;Debug "line " + Str(currentline)
 Until currentline > 14 Or currentline=-1
