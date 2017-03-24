@@ -680,12 +680,12 @@ Procedure evalAssign(str.s)
   EndIf
   
   ;;DEBUGGING:  
-       Debug tok
-       Debug "======"
-       ForEach token()
-         Debug  MapKey(token()) + "    =   "  + token()    
-       Next 
-       Debug "===================" 
+  ;     Debug tok
+  ;     Debug "======"
+  ;     ForEach token()
+  ;       Debug  MapKey(token()) + "    =   "  + token()    
+  ;     Next 
+  ;     Debug "===================" 
   
   If Left(tok,2) = "=#"
     tok = Right(tok, Len(tok)-2)
@@ -863,6 +863,16 @@ EndProcedure
 
 ;binOr,binAnd,hex,...
 
+
+Procedure.s my_eval(params)
+  ProcedureReturn evalExpression(StringField(PeekS(params),1,Chr(9)))
+EndProcedure
+
+Procedure.s my_assign(params)
+  evalAssign(StringField(PeekS(params),1,Chr(9)))
+  ProcedureReturn ""
+EndProcedure  
+  
 Procedure.s my_cos(params)
   ProcedureReturn StrD(Cos(ValD(StringField(PeekS(params),1,Chr(9)))))
 EndProcedure  
@@ -909,16 +919,19 @@ vars("c5")="test"
 funcs("cos") = @my_cos()
 funcs("sin") = @my_sin()
 funcs("msg") = @my_msg()
+funcs("eval") = @my_eval()
+funcs("assign") = @my_assign()
 funcs("question") = @my_question()
 funcs("filewrite") = @my_filewrite()
 
 arrNames("a") = #True
 
 ;Debug evalAssign("hi=9")
-Debug evalAssign("hi='u9'")
+;Debug evalAssign("hi='u9'")
 Debug vars("hi")
 Debug "---"
-Debug evalExpression("hi")
+Debug "result:" + evalExpression("assign('hello=2')")
+Debug "result:" + evalExpression("hello")
 End
 
 ;arrNames("a") = #True
