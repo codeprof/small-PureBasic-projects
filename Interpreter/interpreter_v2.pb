@@ -1,14 +1,5 @@
 
 
-; Structure TMP_VAR
-;   *ptr.i
-;   *length.i
-; EndStructure
-
-
-
-
-
 Procedure eval(*line, begin, depth, num)
   org_num = num
   pos=begin
